@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>T14/T15 Generator</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22b%22%20x1%3D%224%22%20y1%3D%222%22%20x2%3D%2244%22%20y2%3D%2246%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%236D7BFF%22%2F%3E%3Cstop%20offset%3D%22.5%22%20stop-color%3D%22%233B82F6%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2322D3EE%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22p%22%20x1%3D%2218%22%20y1%3D%229%22%20x2%3D%2234%22%20y2%3D%2236%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23FFFFFF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23DCE9FF%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2244%22%20height%3D%2244%22%20rx%3D%2213%22%20fill%3D%22url%28%23b%29%22%2F%3E%3Cpath%20d%3D%22M18.8%208.5h10.6l6.2%206.2v20.5a3.2%203.2%200%200%201-3.2%203.2H18.8a3.2%203.2%200%200%201-3.2-3.2V11.7a3.2%203.2%200%200%201%203.2-3.2Z%22%20fill%3D%22url%28%23p%29%22%2F%3E%3Cpath%20d%3D%22M29.4%208.5%2035.6%2014.7h-4.2a2%202%200%200%201-2-2Z%22%20fill%3D%22%23AFC8FF%22%2F%3E%3Ccircle%20cx%3D%2235.4%22%20cy%3D%2235.4%22%20r%3D%227.6%22%20fill%3D%22%230E9F6E%22%2F%3E%3Cpath%20d%3D%22m31.9%2035.5%202.5%202.5%204.6-4.9%22%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%222.3%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
+<style>
+  /* ---------- design tokens: dark is the default ---------- */
+  :root{
+    --font:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --radius:12px; --radius-sm:8px;
+
+    --bg:#0A0F1E; --panel:#111827; --panel-2:#0D1424; --panel-3:#1A2440;
+    --ink:#E9EEF9; --ink-2:#9AA7C2; --ink-3:#75839F;
+    --rule:#243050; --rule-2:#1A2440;
+    --accent:#5B9CF8; --accent-hover:#82B6FF; --accent-ink:#071021; --accent-soft:rgba(91,156,248,.15);
+    --ok:#34D399; --ok-bg:rgba(52,211,153,.10); --ok-rule:rgba(52,211,153,.32);
+    --warn:#F5C451; --warn-bg:rgba(245,196,81,.10); --warn-rule:rgba(245,196,81,.32);
+    --err:#FB7A7A; --err-bg:rgba(251,122,122,.10); --err-rule:rgba(251,122,122,.34);
+    --header-bg:#070B16; --header-ink:#F2F6FF; --header-sub:#98A5C0; --header-rule:#1B2540;
+    --ring:rgba(91,156,248,.34);
+    --glow:radial-gradient(1100px 460px at 50% -12%,rgba(91,156,248,.13),transparent 62%);
+    --shadow:0 16px 34px rgba(2,6,18,.40);
+    color-scheme:dark;
+  }
+  html[data-theme="light"]{
+    --bg:#F3F6FB; --panel:#FFFFFF; --panel-2:#F4F7FC; --panel-3:#E7EEF9;
+    --ink:#101C3A; --ink-2:#4C5873; --ink-3:#5E6A86;
+    --rule:#D8E0EE; --rule-2:#E8EDF6;
+    --accent:#2158E0; --accent-hover:#1746BD; --accent-ink:#FFFFFF; --accent-soft:#E8EFFD;
+    --ok:#0E7A52; --ok-bg:#EAF7F1; --ok-rule:#BCE0CE;
+    --warn:#7A5200; --warn-bg:#FFF5E0; --warn-rule:#EBD3A3;
+    --err:#B3261E; --err-bg:#FCEDEC; --err-rule:#E8BAB6;
+    --header-bg:#FFFFFF; --header-ink:#101C3A; --header-sub:#4C5873; --header-rule:#D8E0EE;
+    --ring:rgba(33,88,224,.26);
+    --glow:none;
+    --shadow:0 10px 24px rgba(16,28,58,.07);
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--glow),var(--bg); background-color:var(--bg); color:var(--ink);
+    font:15px/1.55 var(--font); -webkit-font-smoothing:antialiased; padding-bottom:96px;
+    transition:background-color .2s ease,color .2s ease;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  /* ---------- header ---------- */
+  header.top{background:var(--header-bg);color:var(--header-ink);border-bottom:1px solid var(--header-rule);padding:15px 0 14px}
+  .top .row{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px;min-width:0}
+  .brand .mark{display:block;height:44px;width:44px;flex:none;filter:drop-shadow(0 8px 18px rgba(34,120,255,.32))}
+  .brand h1{font-size:18.5px;margin:0;font-weight:700;letter-spacing:.1px;color:var(--header-ink);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .brand h1 .mono-mark{color:var(--header-ink);letter-spacing:.3px}
+  .brand h1 .gen{font-weight:400;font-size:15.5px;color:var(--header-sub);letter-spacing:.6px;text-transform:uppercase}
+  .brand p{margin:2px 0 0;font-size:12.5px;color:var(--header-sub)}
+  .top-actions{display:flex;align-items:center;gap:10px}
+  .status{font-size:12.5px;background:var(--panel-3);border:1px solid var(--header-rule);padding:6px 12px;border-radius:999px;color:var(--header-ink);max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .theme-btn{
+    width:36px;height:36px;flex:none;display:grid;place-items:center;cursor:pointer;
+    background:transparent;border:1px solid var(--header-rule);border-radius:999px;color:var(--header-ink);
+    padding:0;transition:border-color .15s,color .15s,transform .15s
+  }
+  .theme-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+  .theme-btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring)}
+  .theme-btn svg{width:18px;height:18px;display:none}
+  html[data-theme="dark"] .theme-btn .i-sun{display:block}
+  html[data-theme="light"] .theme-btn .i-moon{display:block}
+
+  /* ---------- cards ---------- */
+  main{padding-top:22px}
+  .card{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow)}
+  .card h2{font-size:16px;margin:0 0 4px;display:flex;align-items:center;gap:10px;font-weight:600;color:var(--ink)}
+  .card h2 .num{
+    background:var(--accent);color:var(--accent-ink);width:24px;height:24px;border-radius:50%;font-size:12.5px;
+    display:inline-flex;align-items:center;justify-content:center;flex:none;font-weight:700
+  }
+  .card h2 small{font-weight:400;color:var(--ink-2);font-size:13px}
+  .card .lede{color:var(--ink-2);font-size:13.5px;margin:0 0 16px}
+
+  /* ---------- drop zone ---------- */
+  .drop{
+    display:block;border:2px dashed var(--rule);border-radius:var(--radius);background:var(--panel-2);
+    padding:26px 22px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s
+  }
+  .drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+  .drop strong{display:block;font-size:15px;margin-bottom:4px;color:var(--ink)}
+  .drop .hint{display:block;color:var(--ink-2);font-size:12.5px;margin-top:8px;max-width:640px;margin-left:auto;margin-right:auto}
+
+  .filebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;font-size:13.5px;background:var(--panel-2);border:1px solid var(--rule);border-radius:var(--radius-sm);padding:10px 14px}
+  .filebar .name{font-weight:600;color:var(--ink)}
+  .pill{background:var(--panel);border:1px solid var(--rule);border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--ink-2)}
+
+  /* ---------- form ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px 16px;margin-top:14px}
+  label.f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--ink-2);font-weight:600;letter-spacing:.2px}
+  label.f input,label.f select{
+    font:inherit;font-weight:400;color:var(--ink);background:var(--panel-2);background-color:var(--panel-2);
+    border:1px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:14px;
+    transition:border-color .15s,box-shadow .15s
+  }
+  label.f input:focus,label.f select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--ring)}
+  label.f input[readonly]{color:var(--ink-2)}
+  label.f input:disabled{background:var(--panel-3);color:var(--ink-3)}
+  label.f .fhint{font-weight:400;color:var(--ink-3);font-size:11.5px;letter-spacing:0}
+  label.f .fhint b{color:var(--accent);font-weight:600}
+  .checkline{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink);margin-top:8px}
+  .checkline input{width:16px;height:16px;accent-color:var(--accent)}
+  details.adv{margin-top:14px;border-top:1px solid var(--rule);padding-top:12px}
+  details.adv summary{cursor:pointer;color:var(--accent);font-size:13.5px;font-weight:600;list-style:none}
+  details.adv summary::-webkit-details-marker{display:none}
+  details.adv summary:before{content:"\25B8  ";display:inline-block;transition:transform .15s}
+  details.adv[open] summary:before{content:"\25BE  "}
+
+  /* ---------- buttons ---------- */
+  .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px;font-size:13px;color:var(--ink-2)}
+  .btn{
+    font:inherit;font-size:13px;font-weight:600;border-radius:6px;padding:7px 12px;cursor:pointer;
+    border:1px solid var(--rule);background:var(--panel-2);color:var(--ink);transition:border-color .15s,color .15s,background .15s
+  }
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:var(--accent-ink)}
+  .btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  /* ---------- tables ---------- */
+  .tablewrap{overflow:auto;max-height:420px;border:1px solid var(--rule);border-radius:var(--radius-sm)}
+  table{border-collapse:collapse;width:100%;font-size:12.8px}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--rule-2);vertical-align:top;color:var(--ink)}
+  thead th{background:var(--panel-2);color:var(--ink-2);font-size:11.5px;letter-spacing:.3px;position:sticky;top:0;z-index:1;white-space:nowrap;font-weight:600}
+  tbody tr:hover{background:var(--panel-2)}
+  tr.on td{background:var(--accent-soft)}
+  td.num{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink)}
+  .swatch{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--rule);vertical-align:-2px;margin-right:6px}
+  .steps td{font-size:12.2px}
+  .empty{padding:26px;text-align:center;color:var(--ink-2);font-size:13.5px;border:1px dashed var(--rule);border-radius:var(--radius-sm);background:var(--panel-2)}
+  .banner{border-radius:var(--radius-sm);padding:11px 14px;font-size:13.5px;margin:14px 0 0;border:1px solid}
+  .banner.err{background:var(--err-bg);border-color:var(--err-rule);color:var(--err)}
+  .banner.warn{background:var(--warn-bg);border-color:var(--warn-rule);color:var(--warn)}
+  .banner.ok{background:var(--ok-bg);border-color:var(--ok-rule);color:var(--ok)}
+
+  /* ---------- action bar ---------- */
+  .go{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--rule);padding:12px 0;z-index:20}
+  .go .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .go .summary{font-size:13.5px;color:var(--ink-2)}
+  .go .summary b{color:var(--ink)}
+  .btn.big{font-size:14.5px;padding:11px 20px;border-radius:var(--radius-sm)}
+
+  footer.foot{color:var(--ink-3);font-size:12px;padding:6px 0 26px}
+  .kbd{font-family:var(--mono);background:var(--panel-2);border:1px solid var(--rule);border-radius:4px;padding:1px 5px;font-size:12px;color:var(--ink-2)}
+
+  @media (max-width:640px){
+    .card{padding:16px}
+    .brand h1{font-size:16.5px}
+    .brand h1 .gen{font-size:13.5px}
+    .status{max-width:52vw}
+  }
+</style>
+<script>
+  /* set the saved theme before first paint so a light-mode user sees no dark flash */
+  try { if (localStorage.getItem('t15gen.theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) { /* ignore */ }
+</script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap row">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 48 48" role="img" aria-label="T14/T15 Generator mark" focusable="false">
+        <defs>
+          <linearGradient id="tgBadge" x1="4" y1="2" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#6D7BFF"/><stop offset=".5" stop-color="#3B82F6"/><stop offset="1" stop-color="#22D3EE"/>
+          </linearGradient>
+          <linearGradient id="tgPage" x1="18" y1="9" x2="34" y2="36" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DCE9FF"/>
+          </linearGradient>
+          <linearGradient id="tgTick" x1="29" y1="29" x2="42" y2="42" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#34D399"/><stop offset="1" stop-color="#0E9F6E"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#tgBadge)"/>
+        <rect x="2.75" y="2.75" width="42.5" height="42.5" rx="12.4" fill="none" stroke="#FFFFFF" stroke-opacity=".22" stroke-width="1.5"/>
+        <path d="M18.8 8.5h10.6l6.2 6.2v20.5a3.2 3.2 0 0 1-3.2 3.2H18.8a3.2 3.2 0 0 1-3.2-3.2V11.7a3.2 3.2 0 0 1 3.2-3.2Z" fill="url(#tgPage)"/>
+        <path d="M29.4 8.5 35.6 14.7h-4.2a2 2 0 0 1-2-2Z" fill="#AFC8FF"/>
+        <g stroke="#2F63D8" stroke-width="1.9" stroke-linecap="round" fill="none" opacity=".92">
+          <path d="M19.8 19.9h10.9"/><path d="M19.8 24h10.9"/><path d="M19.8 28.1h5.6"/>
+        </g>
+        <circle cx="35.4" cy="35.4" r="7.6" fill="url(#tgTick)"/>
+        <path d="m31.9 35.5 2.5 2.5 4.6-4.9" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <h1><span class="mono-mark">T14/T15</span><span class="gen">Generator</span></h1>
+        <p>Clinical Database Mapping Specification (.xlsx) in, Pre-Conf T15 report (.docx) out</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="status" id="status">No CDMS loaded yet</div>
+      <button class="theme-btn" id="themeBtn" type="button" aria-pressed="false" title="Switch to light mode" aria-label="Switch to light mode">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 14.7A8.7 8.7 0 0 1 9.3 3.6 8.8 8.8 0 1 0 20.4 14.7Z" fill="currentColor"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2.4v2.3M12 19.3v2.3M2.4 12h2.3M19.3 12h2.3M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3 17 7M7 17l-1.7 1.7"/></g></svg>
+        <span class="sr">Switch theme</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <h2><span class="num">1</span> Load the CDMS <small>the mapping workbook</small></h2>
+    <p class="lede">Everything runs in this browser window. The workbook is never uploaded anywhere.</p>
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept=".xlsx,.xlsm" hidden>
+      <strong>Choose a .xlsx workbook, or drop it here</strong>
+      Rows marked in the CDMS (highlighted fill, or a Mark / Include / T15 column) become the T15 test steps.
+      <span class="hint">Item numbers are the Excel row numbers, exactly as the mapping specification keeps them.</span>
+    </label>
+    <div id="fileInfo" hidden></div>
+    <div id="loadError"></div>
+  </section>
+
+  <section class="card" id="detailsCard" hidden>
+    <h2><span class="num">2</span> Document details <small>taken from the CDMS, editable</small></h2>
+    <div class="grid">
+      <label class="f">Study number
+        <input id="study" placeholder="M25-692">
+      </label>
+      <label class="f">CDMS version (read from the file)
+        <input id="specVersion" placeholder="1.0">
+      </label>
+      <label class="f">Version shown in the T15 (one higher)
+        <input id="t15Version" placeholder="2.0">
+        <span class="fhint" id="versionHint"></span>
+      </label>
+      <label class="f">CDMS specification date
+        <input id="specDate" placeholder="13-11-2026">
+      </label>
+      <label class="f">Execution number
+        <input id="execution" value="1">
+      </label>
+      <label class="f">System version # (release to production)
+        <input id="systemVersion" inputmode="numeric">
+      </label>
+      <label class="f">System designer (printed name)
+        <input id="designer" value="Vishal LNU">
+      </label>
+    </div>
+    <label class="checkline"><input type="checkbox" id="release" checked> Release to Production: Yes (untick for No)</label>
+
+    <details class="adv">
+      <summary>Template header, footer and grouping</summary>
+      <div class="grid">
+        <label class="f">Document Name/ID
+          <input id="hName" value="QPP12-10-012-T15">
+        </label>
+        <label class="f">Document Title
+          <input id="hTitle" value="System Test Report and Production Release Approval">
+        </label>
+        <label class="f">Document Number
+          <input id="hNumber" value="OneV-1487862">
+        </label>
+        <label class="f">Document Version
+          <input id="hVersion" value="4.0">
+        </label>
+        <label class="f">Confidentiality line (sponsor)
+          <input id="sponsor" value="AbbVie">
+        </label>
+        <label class="f">Test step grouping
+          <select id="groupBy">
+            <option value="domain" selected>One step per target dataset (as in the T15 sample)</option>
+            <option value="row">One step per marked row</option>
+          </select>
+        </label>
+      </div>
+      <p class="lede" style="margin:10px 0 0">These values are remembered on this computer for the next run.</p>
+    </details>
+    <div id="metaNote"></div>
+  </section>
+
+  <section class="card" id="rowsCard" hidden>
+    <h2><span class="num">3</span> Marked rows <small id="rowsCount"></small></h2>
+    <p class="lede">These rows become the test steps. Untick anything that should not be in this T15.</p>
+    <div class="toolbar">
+      <button class="btn" id="btnAll" type="button">Select all</button>
+      <button class="btn" id="btnNone" type="button">Clear all</button>
+      <label class="checkline" style="margin:0"><input type="checkbox" id="showAll"> Show all rows, to tick rows the highlight missed</label>
+    </div>
+    <div id="rowsHost"></div>
+  </section>
+
+  <section class="card" id="stepsCard" hidden>
+    <h2><span class="num">4</span> Test steps <small>this is the Test Script table in the T15</small></h2>
+    <div id="stepsHost"></div>
+  </section>
+
+  <footer class="foot">
+    T14/T15 Generator. Reads .xlsx and writes .docx entirely in the browser: no server, no dependencies, no network calls.
+  </footer>
+</main>
+
+<div class="go">
+  <div class="wrap">
+    <div class="summary" id="summary">Load a CDMS to begin.</div>
+    <button class="btn primary big" id="generate" type="button" disabled>Generate T15 document (.docx)</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   T14/T15 Generator - core engine (no dependencies, runs fully offline)
+   1. unzip + inflate (XLSX container)
+   2. minimal XLSX reader (shared strings, styles/fills, cells, sheet order)
+   3. marked-row detection + test-step derivation in Pre-Conf T15 format
+   4. WordprocessingML writer + ZIP writer -> .docx
+   ========================================================================= */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  root.T15Core = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------ */
+  /* text helpers                                                        */
+  /* ------------------------------------------------------------------ */
+  const TE = new TextEncoder();
+  const TD = new TextDecoder('utf-8');
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/\u0000/g, '');
+  }
+
+  function decodeEntities(s) {
+    return String(s)
+      .replace(/&#x([0-9a-fA-F]+);/g, (m, h) => String.fromCodePoint(parseInt(h, 16)))
+      .replace(/&#(\d+);/g, (m, d) => String.fromCodePoint(parseInt(d, 10)))
+      .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+      .replace(/&amp;/g, '&');
+  }
+
+  function attr(tag, name) {
+    const n = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    let m = new RegExp('(?:^|\\s)' + n + '\\s*=\\s*"([^"]*)"').exec(tag);
+    if (!m) m = new RegExp('(?:^|\\s)' + n + "\\s*=\\s*'([^']*)'").exec(tag);
+    return m ? decodeEntities(m[1]) : null;
+  }
+
+  function colIndex(ref) {
+    const m = /^([A-Z]+)/.exec(ref || '');
+    if (!m) return -1;
+    let n = 0;
+    for (const ch of m[1]) n = n * 26 + (ch.charCodeAt(0) - 64);
+    return n - 1;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* inflate (raw deflate)                                               */
+  /* ------------------------------------------------------------------ */
+  const LBASE = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258];
+  const LEXT = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0];
+  const DBASE = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577];
+  const DEXT = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13];
+
+  function buildHuff(lengths) {
+    const counts = new Uint16Array(16);
+    const offs = new Uint16Array(16);
+    const symbols = new Uint16Array(lengths.length);
+    for (let i = 0; i < lengths.length; i++) counts[lengths[i]]++;
+    counts[0] = 0;
+    for (let i = 1; i < 16; i++) offs[i] = offs[i - 1] + counts[i - 1];
+    for (let i = 0; i < lengths.length; i++) if (lengths[i]) symbols[offs[lengths[i]]++] = i;
+    return { counts: counts, symbols: symbols };
+  }
+
+  let FIXED_LIT = null, FIXED_DIST = null;
+
+  function inflateRawFallback(src) {
+    let out = new Uint8Array(Math.max(8192, src.length * 5));
+    let outLen = 0, pos = 0, tag = 0, bitcount = 0;
+
+    function ensure(n) {
+      if (outLen + n <= out.length) return;
+      let cap = out.length;
+      while (cap < outLen + n) cap *= 2;
+      const next = new Uint8Array(cap);
+      next.set(out.subarray(0, outLen));
+      out = next;
+    }
+    function bits(n) {
+      let val = 0;
+      for (let i = 0; i < n; i++) {
+        if (bitcount === 0) { tag = src[pos++]; bitcount = 8; }
+        val |= (tag & 1) << i; tag >>= 1; bitcount--;
+      }
+      return val;
+    }
+    function decode(h) {
+      let code = 0, first = 0, index = 0;
+      for (let len = 1; len < 16; len++) {
+        code |= bits(1);
+        const count = h.counts[len];
+        if (code - first < count) return h.symbols[index + (code - first)];
+        index += count; first = (first + count) << 1; code <<= 1;
+      }
+      throw new Error('Corrupt compressed data in the workbook.');
+    }
+
+    let last = 0;
+    while (!last) {
+      last = bits(1);
+      const type = bits(2);
+      if (type === 0) {
+        tag = 0; bitcount = 0;
+        const len = src[pos] | (src[pos + 1] << 8);
+        pos += 4;
+        ensure(len);
+        out.set(src.subarray(pos, pos + len), outLen);
+        outLen += len; pos += len;
+      } else if (type === 1 || type === 2) {
+        let lit, dst;
+        if (type === 1) {
+          if (!FIXED_LIT) {
+            const l = new Uint8Array(288);
+            for (let i = 0; i < 144; i++) l[i] = 8;
+            for (let i = 144; i < 256; i++) l[i] = 9;
+            for (let i = 256; i < 280; i++) l[i] = 7;
+            for (let i = 280; i < 288; i++) l[i] = 8;
+            FIXED_LIT = buildHuff(l);
+            const d = new Uint8Array(30); d.fill(5);
+            FIXED_DIST = buildHuff(d);
+          }
+          lit = FIXED_LIT; dst = FIXED_DIST;
+        } else {
+          const hlit = bits(5) + 257, hdist = bits(5) + 1, hclen = bits(4) + 4;
+          const order = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
+          const clen = new Uint8Array(19);
+          for (let i = 0; i < hclen; i++) clen[order[i]] = bits(3);
+          const clh = buildHuff(clen);
+          const lengths = new Uint8Array(hlit + hdist);
+          let i = 0;
+          while (i < hlit + hdist) {
+            const sym = decode(clh);
+            if (sym < 16) lengths[i++] = sym;
+            else if (sym === 16) {
+              if (i === 0) throw new Error('Corrupt compressed data in the workbook.');
+              const prev = lengths[i - 1];
+              let rep = 3 + bits(2);
+              while (rep--) lengths[i++] = prev;
+            } else if (sym === 17) {
+              let rep = 3 + bits(3);
+              while (rep--) lengths[i++] = 0;
+            } else {
+              let rep = 11 + bits(7);
+              while (rep--) lengths[i++] = 0;
+            }
+          }
+          lit = buildHuff(lengths.subarray(0, hlit));
+          dst = buildHuff(lengths.subarray(hlit));
+        }
+        for (;;) {
+          const sym = decode(lit);
+          if (sym < 256) { ensure(1); out[outLen++] = sym; }
+          else if (sym === 256) break;
+          else {
+            const li = sym - 257;
+            if (li >= 29) throw new Error('Corrupt compressed data in the workbook.');
+            const len = LBASE[li] + bits(LEXT[li]);
+            const dsym = decode(dst);
+            if (dsym >= 30) throw new Error('Corrupt compressed data in the workbook.');
+            const dist = DBASE[dsym] + bits(DEXT[dsym]);
+            ensure(len);
+            let from = outLen - dist;
+            if (from < 0) throw new Error('Corrupt compressed data in the workbook.');
+            for (let k = 0; k < len; k++) out[outLen++] = out[from++];
+          }
+        }
+      } else {
+        throw new Error('Corrupt compressed data in the workbook.');
+      }
+    }
+    return out.subarray(0, outLen);
+  }
+
+  async function inflate(u8) {
+    try {
+      if (typeof DecompressionStream === 'function' && typeof Blob === 'function' && typeof Response === 'function') {
+        const stream = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+        const buf = await new Response(stream).arrayBuffer();
+        return new Uint8Array(buf);
+      }
+    } catch (e) { /* fall through to the built-in inflater */ }
+    return inflateRawFallback(u8);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* unzip                                                               */
+  /* ------------------------------------------------------------------ */
+  async function unzip(u8) {
+    const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+    let eocd = -1;
+    const floor = Math.max(0, u8.length - 66000);
+    for (let i = u8.length - 22; i >= floor; i--) {
+      if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    }
+    if (eocd < 0) throw new Error('This file is not a valid .xlsx workbook (no ZIP directory found).');
+    const count = dv.getUint16(eocd + 10, true);
+    let off = dv.getUint32(eocd + 16, true);
+    if (off === 0xFFFFFFFF) throw new Error('ZIP64 workbooks are not supported.');
+    const files = new Map();
+    for (let i = 0; i < count; i++) {
+      if (dv.getUint32(off, true) !== 0x02014b50) break;
+      const method = dv.getUint16(off + 10, true);
+      const csize = dv.getUint32(off + 20, true);
+      const nlen = dv.getUint16(off + 28, true);
+      const elen = dv.getUint16(off + 30, true);
+      const clen = dv.getUint16(off + 32, true);
+      const lho = dv.getUint32(off + 42, true);
+      const name = TD.decode(u8.subarray(off + 46, off + 46 + nlen));
+      const lnlen = dv.getUint16(lho + 26, true);
+      const lelen = dv.getUint16(lho + 28, true);
+      const dstart = lho + 30 + lnlen + lelen;
+      const raw = u8.subarray(dstart, dstart + csize);
+      if (method === 0) files.set(name, raw);
+      else if (method === 8) files.set(name, await inflate(raw));
+      off += 46 + nlen + elen + clen;
+    }
+    return files;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* XLSX reading                                                        */
+  /* ------------------------------------------------------------------ */
+  const THEME_POS = [1, 0, 3, 2, 4, 5, 6, 7, 8, 9, 10, 11];
+  const INDEXED = ['000000', 'FFFFFF', 'FF0000', '00FF00', '0000FF', 'FFFF00', 'FF00FF', '00FFFF',
+    '000000', 'FFFFFF', 'FF0000', '00FF00', '0000FF', 'FFFF00', 'FF00FF', '00FFFF',
+    '800000', '008000', '000080', '808000', '800080', '008080', 'C0C0C0', '808080',
+    '9999FF', '993366', 'FFFFCC', 'CCFFFF', '660066', 'FF8080', '0066CC', 'CCCCFF',
+    '000080', 'FF00FF', 'FFFF00', '00FFFF', '800080', '800000', '008080', '0000FF',
+    '00CCFF', 'CCFFFF', 'CCFFCC', 'FFFF99', '99CCFF', 'FF99CC', 'CC99FF', 'FFCC99',
+    '3366FF', '33CCCC', '99CC00', 'FFCC00', 'FF9900', 'FF6600', '666699', '969696',
+    '003366', '339966', '003300', '333300', '993300', '993366', '333399', '333333'];
+
+  function normRgb(v) {
+    if (!v) return null;
+    let h = String(v).trim().toUpperCase().replace(/^#/, '');
+    if (h.length === 8) h = h.slice(2);
+    if (!/^[0-9A-F]{6}$/.test(h)) return null;
+    return '#' + h;
+  }
+
+  function applyTint(hex, tint) {
+    if (!tint) return hex;
+    const n = parseInt(hex.slice(1), 16);
+    let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    if (tint < 0) {
+      r = Math.round(r * (1 + tint)); g = Math.round(g * (1 + tint)); b = Math.round(b * (1 + tint));
+    } else {
+      r = Math.round(r + (255 - r) * tint); g = Math.round(g + (255 - g) * tint); b = Math.round(b + (255 - b) * tint);
+    }
+    return '#' + [r, g, b].map(x => Math.max(0, Math.min(255, x)).toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+
+  function parseTheme(xml) {
+    if (!xml) return [];
+    const scheme = (/<a:clrScheme[\s\S]*?<\/a:clrScheme>/.exec(xml) || [''])[0];
+    const out = [];
+    const re = /<a:(dk1|lt1|dk2|lt2|accent[1-6]|hlink|folHlink)>([\s\S]*?)<\/a:\1>/g;
+    let m;
+    while ((m = re.exec(scheme))) {
+      const srgb = /<a:srgbClr[^>]*val="([0-9A-Fa-f]{6})"/.exec(m[2]);
+      const sys = /<a:sysClr[^>]*lastClr="([0-9A-Fa-f]{6})"/.exec(m[2]);
+      const v = srgb ? srgb[1] : (sys ? sys[1] : null);
+      out.push(v ? normRgb(v) : null);
+    }
+    return out;
+  }
+
+  function colorFromAttrs(attrs, theme) {
+    const rgb = attr(attrs, 'rgb');
+    if (rgb) return normRgb(rgb);
+    const indexed = attr(attrs, 'indexed');
+    if (indexed != null && INDEXED[+indexed]) return normRgb(INDEXED[+indexed]);
+    const th = attr(attrs, 'theme');
+    if (th != null && theme.length) {
+      const pos = THEME_POS[+th] != null ? THEME_POS[+th] : +th;
+      const base = theme[pos] || theme[+th];
+      if (base) return applyTint(base, parseFloat(attr(attrs, 'tint') || '0'));
+    }
+    return null;
+  }
+
+  function parseStyles(xml, theme) {
+    const res = { fillColors: [], xfFill: [] };
+    if (!xml) return res;
+    const fills = (/<fills[^>]*>([\s\S]*?)<\/fills>/.exec(xml) || [, ''])[1];
+    const fillRe = /<fill\b[^>]*>([\s\S]*?)<\/fill>/g;
+    let m;
+    while ((m = fillRe.exec(fills))) {
+      const pf = /<patternFill\b([^>]*)>([\s\S]*?)<\/patternFill>/.exec(m[1]);
+      let color = null;
+      if (pf) {
+        const type = attr(pf[1], 'patternType');
+        if (type && type !== 'none') {
+          const fg = /<fgColor\b([^>]*?)\/?>/.exec(pf[2]);
+          const bg = /<bgColor\b([^>]*?)\/?>/.exec(pf[2]);
+          color = fg ? colorFromAttrs(fg[1], theme) : null;
+          if (!color && bg) color = colorFromAttrs(bg[1], theme);
+        }
+      }
+      res.fillColors.push(color);
+    }
+    const xfs = (/<cellXfs[^>]*>([\s\S]*?)<\/cellXfs>/.exec(xml) || [, ''])[1];
+    const xfRe = /<xf\b([^>]*?)(?:\/>|>[\s\S]*?<\/xf>)/g;
+    while ((m = xfRe.exec(xfs))) {
+      const id = parseInt(attr(m[1], 'fillId') || '0', 10);
+      res.xfFill.push(isNaN(id) ? 0 : id);
+    }
+    return res;
+  }
+
+  function parseSharedStrings(xml) {
+    if (!xml) return [];
+    const out = [];
+    const body = (/<sst[^>]*>([\s\S]*)<\/sst>/.exec(xml) || [, ''])[1];
+    const re = /<si\b[^>]*>([\s\S]*?)<\/si>/g;
+    let m;
+    while ((m = re.exec(body))) {
+      const inner = m[1].replace(/<rPh\b[\s\S]*?<\/rPh>/g, '');
+      const texts = [];
+      const tre = /<t\b[^>]*>([\s\S]*?)<\/t>/g;
+      let t;
+      while ((t = tre.exec(inner))) texts.push(decodeEntities(t[1]));
+      out.push(texts.join(''));
+    }
+    return out;
+  }
+
+  function parseSheet(xml) {
+    const rows = [];
+    if (!xml) return rows;
+    const rowRe = /<row\b([^>]*?)(?:\/>|>([\s\S]*?)<\/row>)/g;
+    let m;
+    while ((m = rowRe.exec(xml))) {
+      const rnum = parseInt(attr(m[1], 'r') || '0', 10);
+      const body = m[2] || '';
+      const cells = [];
+      const cellRe = /<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;
+      let cm;
+      while ((cm = cellRe.exec(body))) {
+        const ca = cm[1], cb = cm[2] || '';
+        const ref = attr(ca, 'r') || '';
+        const t = attr(ca, 't') || 'n';
+        const s = parseInt(attr(ca, 's') || '0', 10);
+        let v = null;
+        if (t === 'inlineStr') {
+          const texts = [];
+          const tre = /<t\b[^>]*>([\s\S]*?)<\/t>/g;
+          let x;
+          while ((x = tre.exec(cb))) texts.push(decodeEntities(x[1]));
+          v = texts.join('');
+        } else {
+          const vm = /<v\b[^>]*>([\s\S]*?)<\/v>/.exec(cb);
+          if (vm) {
+            const raw = vm[1];
+            if (t === 's') v = { shared: parseInt(raw, 10) };
+            else if (t === 'str' || t === 'e') v = decodeEntities(raw);
+            else if (t === 'b') v = raw === '1' ? 'TRUE' : 'FALSE';
+            else v = raw;
+          }
+        }
+        cells.push({ ref: ref, col: colIndex(ref), style: s, v: v });
+      }
+      rows.push({ num: rnum, cells: cells });
+    }
+    return rows;
+  }
+
+  function sheetTargets(files) {
+    const get = n => (files.has(n) ? TD.decode(files.get(n)) : null);
+    const wb = get('xl/workbook.xml') || '';
+    const rels = get('xl/_rels/workbook.xml.rels') || '';
+    const relMap = {};
+    const relRe = /<Relationship\b([^>]*?)\/?>/g;
+    let m;
+    while ((m = relRe.exec(rels))) {
+      const id = attr(m[1], 'Id'), target = attr(m[1], 'Target');
+      if (id && target) relMap[id] = target;
+    }
+    const sheets = [];
+    const sRe = /<sheet\b([^>]*?)\/?>/g;
+    while ((m = sRe.exec(wb))) {
+      const rid = attr(m[1], 'r:id');
+      let target = relMap[rid] || '';
+      if (target && !target.startsWith('/')) target = 'xl/' + target.replace(/^\.\//, '');
+      if (target.startsWith('/')) target = target.slice(1);
+      sheets.push({ name: attr(m[1], 'name') || ('Sheet' + (sheets.length + 1)), target: target });
+    }
+    return { sheets: sheets, get: get };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* workbook -> grid of rows (row numbers are the sheet's own)          */
+  /* ------------------------------------------------------------------ */
+  async function readWorkbook(u8) {
+    const files = await unzip(u8);
+    const { sheets, get } = sheetTargets(files);
+    if (!sheets.length) throw new Error('No worksheets found in this workbook.');
+    const theme = parseTheme(get('xl/theme/theme1.xml'));
+    const styles = parseStyles(get('xl/styles.xml'), theme);
+    const sst = parseSharedStrings(get('xl/sharedStrings.xml'));
+
+    const result = [];
+    for (const sh of sheets) {
+      const xml = get(sh.target);
+      if (!xml) continue;
+      const rows = parseSheet(xml);
+      const width = rows.reduce((w, r) => Math.max(w, r.cells.reduce((c, x) => Math.max(c, x.col + 1), 0)), 0);
+      result.push({ name: sh.name, rows: rows, width: width });
+    }
+    return { sheets: result, styles: styles, shared: sst };
+  }
+
+  function cellText(wb, cell) {
+    if (!cell || cell.v == null) return '';
+    const v = cell.v;
+    if (typeof v === 'object' && v.shared != null) {
+      const s = wb.shared[v.shared];
+      return s == null ? '' : String(s);
+    }
+    return String(v).trim();
+  }
+
+  function cellFill(wb, cell) {
+    if (!cell) return null;
+    if (!wb.styles.xfFill.length) return null;
+    const fillId = wb.styles.xfFill[cell.style] || 0;
+    const c = wb.styles.fillColors[fillId];
+    return c || null;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* header + column detection                                           */
+  /* ------------------------------------------------------------------ */
+  const norm = s => String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  const ROLES = [
+    { key: 'sourceSystem', test: h => /^sourcesystem/.test(h) },
+    { key: 'sourceTable', test: h => /^source(table|sheet|form|dataset|domain|crf|module)s?$/.test(h) },
+    { key: 'sourceColumn', test: h => /^source(col|var|field|item|question)/.test(h) },
+    { key: 'targetTable', test: h => /^target(table|sheet|form|dataset|domain)s?$/.test(h) || /^dataset$/.test(h) || /^domain$/.test(h) },
+    { key: 'targetColumn', test: h => /^targetcol/.test(h) || /^targetvar/.test(h) || /^targetfield/.test(h) || /^targetitem/.test(h) },
+    { key: 'mapping', test: h => /^mappinglogic/.test(h) || /^mapping/.test(h) || /^pseudocode/.test(h) || /^logic$/.test(h) },
+    { key: 'transpose', test: h => /^transpose/.test(h) },
+    { key: 'details', test: h => /^additionaldetail/.test(h) || /^comments?$/.test(h) || /^notes?$/.test(h) || /^remarks?$/.test(h) },
+    { key: 'item', test: h => /^item(no|num|number)?$/.test(h) || /^sno$/.test(h) || /^slno$/.test(h) || /^rowno$/.test(h) || /^seq/.test(h) || /^specitem/.test(h) },
+    { key: 'marker', test: h => /^mark(ed|er|for)?$/.test(h) || /^include[ds]?$/.test(h) || /^(in)?t1[45]$/.test(h) || /^flag$/.test(h) || /^highlight$/.test(h) || /^changed$/.test(h) }
+  ];
+
+  function locateHeader(wb, sheet) {
+    let best = null;
+    for (const row of sheet.rows) {
+      if (row.num > 20) break;
+      const cols = {};
+      let hits = 0;
+      for (const c of row.cells) {
+        const h = norm(cellText(wb, c));
+        if (!h) continue;
+        for (const role of ROLES) {
+          if (cols[role.key] == null && role.test(h)) { cols[role.key] = c.col; hits++; }
+        }
+      }
+      const strong = (cols.targetColumn != null) || (cols.sourceColumn != null) || (cols.mapping != null);
+      const score = hits + (strong ? 2 : 0);
+      if (hits >= 3 && strong && (!best || score > best.score)) best = { row: row, cols: cols, score: score };
+    }
+    return best;
+  }
+
+  function rowsToRecords(wb, sheet, header) {
+    const cols = header.cols;
+    const dataFill = new Map();
+    const records = [];
+    for (const row of sheet.rows) {
+      if (row.num <= header.row.num) continue;
+      const get = key => {
+        const col = cols[key];
+        if (col == null) return '';
+        const cell = row.cells.find(c => c.col === col);
+        return cellText(wb, cell);
+      };
+      const raw = {
+        sourceSystem: get('sourceSystem'),
+        sourceTable: get('sourceTable'),
+        sourceColumn: get('sourceColumn'),
+        targetTable: get('targetTable'),
+        targetColumn: get('targetColumn'),
+        mapping: get('mapping'),
+        transpose: get('transpose'),
+        details: get('details'),
+        marker: get('marker')
+      };
+      const hasContent = Object.keys(raw).some(k => k !== 'marker' && raw[k]);
+      if (!hasContent) continue;
+
+      const fills = [];
+      for (const c of row.cells) {
+        const f = cellFill(wb, c);
+        if (f && f.toUpperCase() !== '#FFFFFF') fills.push(f.toUpperCase());
+      }
+      const uniq = Array.from(new Set(fills));
+      uniq.forEach(f => dataFill.set(f, (dataFill.get(f) || 0) + 1));
+
+      const itemRaw = get('item');
+      const itemNum = /^\d+$/.test(itemRaw) ? parseInt(itemRaw, 10) : null;
+      records.push({
+        excelRow: row.num,
+        itemNo: itemNum != null ? itemNum : row.num,
+        fill: uniq[0] || null,
+        fills: uniq,
+        row: raw,
+        markedText: isTruthy(raw.marker),
+        markedFill: false,
+        included: false
+      });
+    }
+
+    const threshold = Math.max(1, Math.round(records.length * 0.2));
+    for (const rec of records) {
+      rec.markedFill = rec.fills.some(f => isHighlight(f, dataFill.get(f) || 0, threshold));
+    }
+    return records;
+  }
+
+  function isTruthy(v) {
+    const s = norm(v);
+    return s === 'y' || s === 'yes' || s === 'x' || s === 'true' || s === '1' || s === 't15' || s === 't14' || s === 'marked' || s === 'include' || s === 'included';
+  }
+
+  function isHighlight(hex, count, threshold) {
+    const rgb = hex.replace('#', '');
+    const r = parseInt(rgb.slice(0, 2), 16), g = parseInt(rgb.slice(2, 4), 16), b = parseInt(rgb.slice(4, 6), 16);
+    const yellow = r > 200 && g > 170 && b < 140;
+    const green = r > 150 && g > 200 && b > 150 && b < 200;
+    const rare = count > 0 && count <= threshold;
+    return yellow || green || rare;
+  }
+
+  function analyse(wb, sheetName) {
+    const sheet = wb.sheets.find(s => s.name === sheetName) || wb.sheets[0];
+    if (!sheet) throw new Error('The workbook has no worksheets.');
+    const header = locateHeader(wb, sheet);
+    if (!header) {
+      throw new Error('Could not find the mapping header row in sheet "' + sheet.name +
+        '". Expected columns such as "Source Table", "Target Column" and "Mapping Logic (pseudo code)".');
+    }
+    const records = rowsToRecords(wb, sheet, header);
+    records.forEach(r => { r.included = r.markedFill || r.markedText; });
+    return { sheet: sheet, header: header, records: records };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* test-step derivation                                                */
+  /* ------------------------------------------------------------------ */
+  const pad2 = n => String(n).padStart(2, '0');
+
+  function joinAnd(list) {
+    const a = list.filter(x => x != null && String(x).trim() !== '');
+    if (!a.length) return 'NA';
+    if (a.length === 1) return a[0];
+    if (a.length === 2) return a[0] + ' and ' + a[1];
+    return a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+  }
+
+  function distinct(list) {
+    const seen = new Set(), out = [];
+    for (const v of list) {
+      const s = String(v == null ? '' : v).trim();
+      if (!s) continue;
+      const k = s.toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k); out.push(s);
+    }
+    return out;
+  }
+
+  const DERIVED_SOURCE = /^(derived|calculated?|calc|system|lookup|n\/?a|na|none|-+)$/i;
+
+  function isDerivedSource(v) {
+    const s = String(v == null ? '' : v).trim();
+    return !s || DERIVED_SOURCE.test(s);
+  }
+
+  function mode(list) {
+    const counts = new Map();
+    let best = '', bestN = 0;
+    for (const v of list) {
+      const s = String(v == null ? '' : v).trim();
+      if (!s) continue;
+      const n = (counts.get(s.toLowerCase()) || 0) + 1;
+      counts.set(s.toLowerCase(), n);
+      if (n > bestN) { bestN = n; best = s; }
+    }
+    return best;
+  }
+
+  function deriveSteps(records, opts) {
+    opts = opts || {};
+    const groupMode = opts.groupBy || 'domain';
+    const included = records.filter(r => r.included).sort((a, b) => a.itemNo - b.itemNo);
+    const groups = [];
+    const index = new Map();
+
+    for (const rec of included) {
+      const domain = (rec.row.targetTable || rec.row.sourceTable || 'NA').trim();
+      const key = groupMode === 'row' ? 'row:' + rec.excelRow : 'dom:' + domain.toLowerCase();
+      let g = index.get(key);
+      if (!g) {
+        g = { domain: domain, items: [], records: [] };
+        index.set(key, g);
+        groups.push(g);
+      }
+      g.items.push(rec.itemNo);
+      g.records.push(rec);
+    }
+
+    const start = opts.startAt == null ? 1 : opts.startAt;
+    return groups.map((g, i) => {
+      const targets = distinct(g.records.map(r => r.row.targetColumn));
+      const dataset = distinct(g.records.map(r => r.row.targetTable))[0] || g.domain || 'NA';
+      const tables = distinct(g.records.map(r => r.row.targetTable));
+      const domainLabel = tables[0] || dataset;
+
+      // form name: source table used by the mapped (non-derived) rows
+      const mapped = g.records.filter(r => !isDerivedSource(r.row.sourceTable));
+      const sourceTables = mapped.map(r => r.row.sourceTable);
+      const formName = mode(sourceTables) || mode(g.records.map(r => r.row.sourceTable)) || 'NA';
+
+      // field name: source columns of the mapped rows only
+      const sourceCols = (mapped.length ? mapped : g.records).map(r => r.row.sourceColumn);
+      const sources = distinct(sourceCols);
+
+      const fieldName = sources.length ? sources.join(', ') : 'NA';
+      const label = targets.length ? targets : (sources.length ? sources : ['the selected rows']);
+      const description = 'Verify the mappings for ' + joinAnd(label) + ' in ' + domainLabel + ' dataset';
+      return {
+        stepNo: start + '.' + pad2(i + 1),
+        description: description,
+        formName: formName,
+        fieldName: fieldName,
+        itemSpec: joinAnd(g.items.map(String)),
+        expected: 'Should be mapped as per CDMS',
+        actual: '', result: '', subject: '', tester: '', comments: '',
+        items: g.items.slice()
+      };
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* file-name metadata                                                  */
+  /* ------------------------------------------------------------------ */
+  const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+  /* The T15 always cites the specification one version higher than the CDMS
+     it was built from: 1.0 -> 2.0, 2.1 -> 3.1, V1.0 -> V2.0. */
+  function bumpVersion(v) {
+    const s = String(v == null ? '' : v).trim();
+    if (!s) return '';
+    const m = /^(\D*?)(\d+)([\s\S]*)$/.exec(s);
+    if (!m) return s;
+    const digits = m[2];
+    const next = parseInt(digits, 10) + 1;
+    const padded = (digits.length > 1 && digits.charAt(0) === '0')
+      ? String(next).padStart(digits.length, '0') : String(next);
+    return m[1] + padded + m[3];
+  }
+
+  function parseFileName(name) {
+    const out = { study: '', version: '', date: '' };
+    const base = String(name || '').replace(/\.(xlsx|xlsm|xls)$/i, '');
+    let m = /([A-Za-z]{1,4}\d{1,4}[-_]\d{2,6}(?:[-_]\d{1,3})?)/.exec(base);
+    if (!m) m = /([A-Za-z]{2,}\d{2,}[-_]\d{2,})/.exec(base);
+    if (m) out.study = m[1];
+    m = /(?:^|[^A-Za-z])[Vv](\d+(?:\.\d+)?)/.exec(base);
+    if (m) out.version = m[1];
+    m = /(\d{1,2})[-_ ]([A-Za-z]{3,9})[-_ ](\d{2,4})/.exec(base);
+    if (m) {
+      const mi = MONTHS.indexOf(m[2].slice(0, 3).toLowerCase());
+      if (mi >= 0) out.date = pad2(+m[1]) + '-' + pad2(mi + 1) + '-' + normYear(m[3]);
+    }
+    if (!out.date) {
+      m = /(\d{1,2})[-_/.](\d{1,2})[-_/.](\d{4})/.exec(base);
+      if (m) out.date = pad2(+m[1]) + '-' + pad2(+m[2]) + '-' + m[3];
+    }
+    if (!out.date) {
+      m = /(\d{4})[-_/.](\d{1,2})[-_/.](\d{1,2})/.exec(base);
+      if (m) out.date = pad2(+m[3]) + '-' + pad2(+m[2]) + '-' + m[1];
+    }
+    return out;
+  }
+
+  function normYear(y) {
+    const n = String(y);
+    return n.length === 2 ? (parseInt(n, 10) > 70 ? '19' + n : '20' + n) : n;
+  }
+
+  function todayDDMMYYYY() {
+    const d = new Date();
+    return pad2(d.getDate()) + '-' + pad2(d.getMonth() + 1) + '-' + d.getFullYear();
+  }
+
+  function todayYYYYMMDD() {
+    const d = new Date();
+    return '' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate());
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* DOCX writer                                                         */
+  /* ------------------------------------------------------------------ */
+  const SHD = '8DB3E2';
+  const CB_ON = '\u2612';
+  const CB_OFF = '\u2610';
+  const ENSP = '\u2002\u2002\u2002\u2002\u2002';
+
+  function runXml(text, o) {
+    o = o || {};
+    const f = [];
+    if (o.font) f.push('<w:rFonts w:ascii="' + o.font + '" w:hAnsi="' + o.font + '" w:cs="' + o.font + '"/>');
+    if (o.b) f.push('<w:b/><w:bCs/>');
+    if (o.i) f.push('<w:i/><w:iCs/>');
+    if (o.u) f.push('<w:u w:val="single"/>');
+    if (o.color) f.push('<w:color w:val="' + o.color + '"/>');
+    if (o.sz) f.push('<w:sz w:val="' + o.sz + '"/><w:szCs w:val="' + o.sz + '"/>');
+    const rpr = f.length ? '<w:rPr>' + f.join('') + '</w:rPr>' : '';
+    return '<w:r>' + rpr + '<w:t xml:space="preserve">' + esc(text) + '</w:t></w:r>';
+  }
+
+  function paraXml(runs, o) {
+    o = o || {};
+    const pr = [];
+    if (o.style) pr.push('<w:pStyle w:val="' + o.style + '"/>');
+    if (o.keepNext) pr.push('<w:keepNext/>');
+    if (o.pageBreak) pr.push('<w:pageBreakBefore/>');
+    if (o.spacing) {
+      let s = '<w:spacing';
+      if (o.spacing.before != null) s += ' w:before="' + o.spacing.before + '"';
+      if (o.spacing.after != null) s += ' w:after="' + o.spacing.after + '"';
+      if (o.spacing.line != null) s += ' w:line="' + o.spacing.line + '" w:lineRule="auto"';
+      pr.push(s + '/>');
+    }
+    if (o.ind) pr.push('<w:ind w:left="' + o.ind.left + '"' + (o.ind.hanging ? ' w:hanging="' + o.ind.hanging + '"' : '') + '/>');
+    if (o.align) pr.push('<w:jc w:val="' + o.align + '"/>');
+    const ppr = pr.length ? '<w:pPr>' + pr.join('') + '</w:pPr>' : '';
+    const body = (runs || []).map(r => (typeof r === 'string' ? runXml(r) : runXml(r.t, r))).join('');
+    return '<w:p>' + ppr + body + '</w:p>';
+  }
+
+  function cellXml(cell) {
+    let pr = '<w:tcW w:w="' + cell.w + '" w:type="dxa"/>';
+    if (cell.span) pr += '<w:gridSpan w:val="' + cell.span + '"/>';
+    if (cell.vMerge === 'restart') pr += '<w:vMerge w:val="restart"/>';
+    else if (cell.vMerge === 'continue') pr += '<w:vMerge/>';
+    if (cell.borders) {
+      pr += '<w:tcBorders>' + Object.keys(cell.borders).map(side =>
+        '<w:' + side + ' w:val="' + cell.borders[side] + '"/>').join('') + '</w:tcBorders>';
+    }
+    if (cell.shd) pr += '<w:shd w:val="clear" w:color="auto" w:fill="' + cell.shd + '"/>';
+    if (cell.vAlign) pr += '<w:vAlign w:val="' + cell.vAlign + '"/>';
+
+    let paras;
+    if (cell.paras) paras = cell.paras;
+    else if (cell.runs) paras = [cell.runs];
+    else paras = [[{ t: cell.text == null ? '' : cell.text }]];
+
+    const xml = paras.map(p => {
+      if (typeof p === 'string') return paraXml([{ t: p }], { style: 'CellText' });
+      return paraXml(p, { style: 'CellText', align: cell.align });
+    }).join('');
+    return '<w:tc><w:tcPr>' + pr + '</w:tcPr>' + (xml || paraXml([{ t: '' }], { style: 'CellText' })) + '</w:tc>';
+  }
+
+  function tableXml(grid, rows) {
+    const total = grid.reduce((a, b) => a + b, 0);
+    let x = '<w:tbl><w:tblPr><w:tblStyle w:val="TableGrid"/>'
+      + '<w:tblW w:w="' + total + '" w:type="dxa"/>'
+      + '<w:tblLayout w:type="fixed"/>'
+      + '<w:tblCellMar><w:top w:w="29" w:type="dxa"/><w:left w:w="115" w:type="dxa"/>'
+      + '<w:bottom w:w="29" w:type="dxa"/><w:right w:w="115" w:type="dxa"/></w:tblCellMar>'
+      + '<w:tblLook w:val="04A0" w:firstRow="1" w:lastRow="0" w:firstColumn="1" w:lastColumn="0" w:noHBand="0" w:noVBand="1"/>'
+      + '</w:tblPr><w:tblGrid>' + grid.map(w => '<w:gridCol w:w="' + w + '"/>').join('') + '</w:tblGrid>';
+    for (const row of rows) {
+      const trPr = [];
+      if (row.height) trPr.push('<w:trHeight w:val="' + row.height + '"/>');
+      if (row.header) trPr.push('<w:tblHeader/>');
+      if (row.cantSplit) trPr.push('<w:cantSplit/>');
+      x += '<w:tr>' + (trPr.length ? '<w:trPr>' + trPr.join('') + '</w:trPr>' : '')
+        + row.cells.map(cellXml).join('') + '</w:tr>';
+    }
+    return x + '</w:tbl>';
+  }
+
+  const HEAD = '<w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:p>';
+
+  function h1(text) {
+    return paraXml([{ t: text }], { style: 'Heading1', keepNext: true, spacing: { before: 480, after: 120 } });
+  }
+  function h2(text) {
+    return paraXml([{ t: text }], { style: 'Heading2', keepNext: true, spacing: { before: 240, after: 60 } });
+  }
+  function body(text, o) {
+    o = o || {};
+    return paraXml([{ t: text }], { style: 'BodyText', spacing: { after: o.after == null ? 120 : o.after, line: 240 }, ind: o.ind });
+  }
+  function bullet(text) {
+    return paraXml([{ t: '\u2022\t' + text }], {
+      style: 'BodyText', spacing: { after: 0, line: 240 },
+      ind: { left: 1080, hanging: 360 }
+    });
+  }
+
+  function specTable(cfg) {
+    const grid = [452, 1528, 4540, 1145, 1695];
+    const specs = [
+      'Electronic Data Capture Specification',
+      'Electronic Case Report Form Completion Guidelines',
+      'Interactive Response Technology Specification',
+      'Electronic Clinical Outcome Assessments Specification',
+      'Clinical Database Mapping Specification',
+      'Clinical Database Edit Check Specification',
+      'System Integration/Data Transfer Specification - Interactive Response Technology',
+      'System Integration/Data Transfer Specification - Electronic Clinical Outcome Assessments',
+      'System Integration/Data Transfer Specification \u2013 Lab Data',
+      'System Integration/Data Transfer Specification - Other Data',
+      'Integrated Data Review Plan'
+    ];
+    const rows = [];
+    rows.push({
+      height: 300, header: true,
+      cells: [
+        { w: 452, shd: SHD, text: '' },
+        { w: 6068, span: 2, shd: SHD, runs: [{ t: 'Document Title (Select one applicable specification)', b: true }] },
+        { w: 1145, shd: SHD, runs: [{ t: 'Version', b: true }] },
+        { w: 1695, shd: SHD, runs: [{ t: 'Date', b: true }] }
+      ]
+    });
+    const checked = 'clinical database mapping specification';
+    for (const s of specs) {
+      const isOn = s.toLowerCase() === checked;
+      rows.push({
+        cells: [
+          { w: 452, vAlign: 'center', runs: [{ t: isOn ? CB_ON : CB_OFF }] },
+          { w: 6068, span: 2, shd: SHD, runs: [{ t: s }] },
+          { w: 1145, text: isOn ? cfg.specVersion : ENSP },
+          { w: 1695, text: isOn ? cfg.specDate : ENSP }
+        ]
+      });
+    }
+    rows.push({
+      cells: [
+        { w: 452, vAlign: 'center', runs: [{ t: CB_OFF }] },
+        { w: 1528, shd: SHD, runs: [{ t: 'Other, specify: ' }] },
+        { w: 4540, text: '' },
+        { w: 1145, text: ENSP },
+        { w: 1695, text: ENSP }
+      ]
+    });
+    rows.push({
+      cells: [
+        { w: 452, vAlign: 'center', runs: [{ t: CB_OFF }] },
+        { w: 8908, span: 4, shd: SHD, runs: [{ t: 'No specification changes (programming only), specify details:' }] }
+      ]
+    });
+    rows.push({ height: 400, cells: [{ w: 452, text: '' }, { w: 8908, span: 4, text: '' }] });
+    return tableXml(grid, rows);
+  }
+
+  function approvalTable(cfg) {
+    const grid = [455, 4567, 4568];
+    return tableXml(grid, [
+      {
+        height: 314,
+        cells: [{
+          w: 9590, span: 3,
+          borders: { top: 'nil', left: 'nil', right: 'nil' },
+          runs: [{ t: '1.0 Approval Type', b: true, color: '365F91' }]
+        }]
+      },
+      {
+        height: 314,
+        cells: [{ w: 9590, span: 3, shd: SHD, runs: [{ t: 'Approval Type ', b: true }] }]
+      },
+      {
+        cells: [
+          { w: 455, vAlign: 'center', runs: [{ t: CB_ON }] },
+          {
+            w: 4567, vAlign: 'center',
+            runs: [{ t: 'Study Number: ' }, { t: cfg.study, u: true }]
+          },
+          {
+            w: 4568, vAlign: 'center',
+            paras: [
+              [{ t: CB_ON }, { t: ' Study-specific specification' }],
+              [{ t: CB_OFF }, { t: ' Programming change only' }],
+              [{ t: CB_OFF }, { t: ' Migration' }]
+            ]
+          }
+        ]
+      },
+      {
+        cells: [
+          { w: 455, vAlign: 'center', runs: [{ t: CB_OFF }] },
+          { w: 9135, span: 2, vAlign: 'center', runs: [{ t: 'Global Specification' }] }
+        ]
+      }
+    ]);
+  }
+
+  function deviationTable() {
+    return tableXml([463, 8887], [
+      { cells: [{ w: 463, vAlign: 'center', runs: [{ t: CB_OFF }] }, { w: 8887, shd: SHD, runs: [{ t: 'No deviations' }] }] },
+      { cells: [{ w: 463, vMerge: 'restart', vAlign: 'center', runs: [{ t: CB_OFF }] }, { w: 8887, shd: SHD, runs: [{ t: 'Describe any deviations as necessary:' }] }] },
+      { height: 420, cells: [{ w: 463, vMerge: 'continue', text: '' }, { w: 8887, text: '' }] }
+    ]);
+  }
+
+  function testerTable() {
+    const grid = [591, 1633, 2685, 2872, 1576];
+    const rows = [{
+      height: 280, header: true,
+      cells: [
+        { w: 2224, span: 2, shd: SHD, runs: [{ t: 'Role', b: true }] },
+        { w: 2685, shd: SHD, runs: [{ t: 'Printed Name', b: true }] },
+        { w: 2872, shd: SHD, runs: [{ t: 'Signature', b: true }] },
+        { w: 1576, shd: SHD, runs: [{ t: 'Date', b: true }] }
+      ]
+    }];
+    for (let i = 0; i < 3; i++) {
+      rows.push({
+        height: 300,
+        cells: [
+          { w: 591, vAlign: 'center', runs: [{ t: CB_OFF }] },
+          { w: 1633, shd: SHD, runs: [{ t: 'Tester' }] },
+          { w: 2685, text: ENSP },
+          { w: 2872, text: '' },
+          { w: 1576, text: '' }
+        ]
+      });
+    }
+    rows.push({
+      height: 300,
+      cells: [
+        { w: 591, vAlign: 'center', runs: [{ t: CB_OFF }] },
+        { w: 1633, shd: SHD, paras: [[{ t: 'Other, specify:' }], [{ t: 'DWA' }]] },
+        { w: 2685, text: '' }, { w: 2872, text: '' }, { w: 1576, text: '' }
+      ]
+    });
+    rows.push({
+      height: 300,
+      cells: [
+        { w: 591, vAlign: 'center', runs: [{ t: CB_OFF }] },
+        { w: 1633, shd: SHD, runs: [{ t: 'Other, specify:' }] },
+        { w: 2685, text: '' }, { w: 2872, text: '' }, { w: 1576, text: '' }
+      ]
+    });
+    return tableXml(grid, rows);
+  }
+
+  function resultsTable(cfg) {
+    const yes = !!cfg.release;
+    const yesRuns = [yes ? CB_ON : CB_OFF, ' Yes, provide additional comments below, if applicable:'];
+    const noRuns = [yes ? CB_OFF : CB_ON, ' No, please specify the reason or step number(s) to be resolved prior to production:'];
+    return tableXml([4770, 4320], [
+      {
+        cells: [
+          { w: 4770, shd: SHD, runs: [{ t: 'Test step number(s) to be resolved post production' }] },
+          { w: 4320, text: 'NA' }
+        ]
+      },
+      {
+        cells: [
+          { w: 4770, shd: SHD, runs: [{ t: 'Rationale for issues to be resolved post production' }] },
+          { w: 4320, text: 'NA' }
+        ]
+      },
+      {
+        height: 700,
+        cells: [
+          { w: 4770, shd: SHD, runs: [{ t: 'Release to Production' }] },
+          {
+            w: 4320,
+            paras: [
+              [{ t: yesRuns[0] }, { t: yesRuns[1] + ((cfg.systemVersion || '') ? '  system version #:' + cfg.systemVersion : '') }],
+              [{ t: noRuns[0] }, { t: noRuns[1] }]
+            ]
+          }
+        ]
+      }
+    ]);
+  }
+
+  function signoffTable(cfg) {
+    return tableXml([2407, 2407, 2962, 1574], [
+      {
+        height: 280, header: true,
+        cells: [
+          { w: 2407, shd: SHD, runs: [{ t: 'Role', b: true }] },
+          { w: 2407, shd: SHD, runs: [{ t: 'Printed Name', b: true }] },
+          { w: 2962, shd: SHD, runs: [{ t: 'Signature', b: true }] },
+          { w: 1574, shd: SHD, runs: [{ t: 'Date', b: true }] }
+        ]
+      },
+      {
+        height: 320,
+        cells: [
+          { w: 2407, shd: SHD, vAlign: 'center', runs: [{ t: 'System Designer' }] },
+          { w: 2407, text: cfg.designer },
+          { w: 2962, text: '' },
+          { w: 1574, text: ENSP }
+        ]
+      }
+    ]);
+  }
+
+  function testScriptTable(cfg) {
+    const grid = [721, 1609, 1170, 1170, 990, 1260, 1170, 1158, 1121, 1231, 1360];
+    const heads = ['Test Step', 'Test Step Description', 'Form Name', 'Field Name', 'Item # Spec',
+      'Expected Result', 'Actual Result', 'Test Result (Pass/ Fail)', 'Test Subject', 'Tester Name', 'Comments'];
+    const rows = [{ header: true, cells: heads.map((h, i) => ({ w: grid[i], shd: SHD, runs: [{ t: h, b: true }] })) }];
+    const steps = cfg.steps || [];
+    if (!steps.length) {
+      rows.push({
+        cells: [
+          { w: grid[0], text: '' }, { w: grid[1], text: 'No marked rows found in the CDMS.' },
+          ...grid.slice(2).map(w => ({ w: w, text: '' }))
+        ]
+      });
+    }
+    for (const s of steps) {
+      rows.push({
+        cells: [
+          { w: grid[0], text: s.stepNo },
+          { w: grid[1], text: s.description },
+          { w: grid[2], text: s.formName },
+          { w: grid[3], text: s.fieldName },
+          { w: grid[4], text: s.itemSpec },
+          { w: grid[5], text: s.expected },
+          { w: grid[6], text: s.actual },
+          { w: grid[7], text: s.result },
+          { w: grid[8], text: s.subject },
+          { w: grid[9], text: s.tester },
+          { w: grid[10], text: s.comments }
+        ]
+      });
+    }
+    return tableXml(grid, rows);
+  }
+
+  function documentXml(cfg) {
+    const sectCommon = (attrs) => '<w:sectPr><w:headerReference w:type="default" r:id="rId2"/>'
+      + '<w:footerReference w:type="default" r:id="rId3"/>' + attrs
+      + '<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/>'
+      + '<w:cols w:space="720"/><w:docGrid w:linePitch="360"/></w:sectPr>';
+    const portrait = sectCommon('<w:pgSz w:w="12240" w:h="15840"/>');
+    const landscape = sectCommon('<w:pgSz w:w="15840" w:h="12240" w:orient="landscape"/>');
+
+    const out = [];
+    out.push(paraXml([{
+      t: '00Complete this template via full document processing for studies using electronic master file.',
+      b: true, i: true
+    }], { style: 'BodyText', spacing: { after: 0, line: 240 } }));
+
+    out.push(approvalTable(cfg));
+    out.push(paraXml([], { style: 'BodyText', spacing: { after: 0 } }));
+
+    out.push(h1('2.0 Specification'));
+    out.push(specTable(cfg));
+    out.push(paraXml([], { style: 'BodyText', spacing: { after: 0 } }));
+
+    out.push(h1('3.0 Test Report'));
+    out.push(body('The execution of the testing of the clinical technology system for the trial has been completed. '
+      + 'The Test Report documents the results of the testing for the trial that was conducted in accordance with the Test Plan. '
+      + 'The scope of the testing covered the following areas:', { ind: { left: 360 }, after: 60 }));
+    out.push(bullet('Ensure that required functionality is necessary for subject data collection and expected subject trajectories operate correctly and accurately reflect the needs of the clinical trial.'));
+    out.push(bullet('Ensure that the end user can easily navigate through the forms/screens and transactions.'));
+
+    out.push(h2('3.1 Deviations from Test Plan'));
+    out.push(deviationTable());
+
+    out.push(h2('3.2 Testing Performed By:'));
+    out.push(body('Approvals below denote testing has been executed per the Test Plan and documented in the clinical technology Test Script.'));
+    out.push(testerTable());
+
+    out.push(h2('3.3 Results'));
+    out.push(h2('Issues found during testing have been documented in the clinical technology Test Script.'));
+    out.push(resultsTable(cfg));
+
+    out.push(h2('3.4 System Test Report Completed/Approved By:'));
+    out.push(signoffTable(cfg));
+
+    // end of portrait section
+    out.push('<w:p><w:pPr>' + portrait + '</w:pPr></w:p>');
+
+    // landscape section: the test script
+    out.push(paraXml([{ t: 'Test Script \u2013 Pre-Conf Mapping Testing - Execution ' + (cfg.execution || 1), i: false }],
+      { style: 'BodyText', spacing: { before: 240, after: 120 } }));
+    out.push(testScriptTable(cfg));
+
+    const doc = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+      + ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+      + '<w:body>' + out.join('') + landscape + '</w:body></w:document>';
+    return doc;
+  }
+
+  function headerXml(cfg) {
+    const h = cfg.header || {};
+    const grid = [2340, 7020];
+    const rows = [
+      ['Document Name/ID:', h.nameId],
+      ['Document Title:', h.title],
+      ['Document Number:', h.number],
+      ['Document Version:', h.version]
+    ].map(pair => ({
+      cells: [
+        { w: grid[0], runs: [{ t: pair[0], font: 'Calibri' }] },
+        { w: grid[1], runs: [{ t: pair[1] == null ? '' : pair[1], font: 'Calibri' }] }
+      ]
+    }));
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+      + ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+      + tableXml(grid, rows)
+      + '<w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:p></w:hdr>';
+  }
+
+  function field(instr, placeholder) {
+    return '<w:r><w:fldChar w:fldCharType="begin"/></w:r>'
+      + '<w:r><w:instrText xml:space="preserve"> ' + instr + ' </w:instrText></w:r>'
+      + '<w:r><w:fldChar w:fldCharType="separate"/></w:r>'
+      + '<w:r><w:t>' + placeholder + '</w:t></w:r>'
+      + '<w:r><w:fldChar w:fldCharType="end"/></w:r>';
+  }
+
+  function footerXml(cfg) {
+    const page = '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/>'
+      + '<w:jc w:val="center"/><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>'
+      + '<w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:pPr>'
+      + runXml('Page ', { font: 'Calibri', sz: 20 }) + field('PAGE', '1')
+      + runXml(' of ', { font: 'Calibri', sz: 20 }) + field('NUMPAGES', '1')
+      + '</w:p>';
+    const confidential = '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/>'
+      + '<w:jc w:val="center"/><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'
+      + '<w:sz w:val="16"/><w:szCs w:val="20"/></w:rPr></w:pPr>'
+      + runXml('This information is confidential to ' + (cfg.sponsor || 'AbbVie')
+        + '. The user is responsible for using the appropriate version of this document.',
+        { font: 'Arial', sz: 16 }) + '</w:p>';
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+      + ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+      + page + confidential + '</w:ftr>';
+  }
+
+  function stylesXml() {
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+      + '<w:docDefaults><w:rPrDefault><w:rPr>'
+      + '<w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>'
+      + '<w:sz w:val="20"/><w:szCs w:val="20"/><w:lang w:val="en-US" w:eastAsia="en-US" w:bidi="ar-SA"/>'
+      + '</w:rPr></w:rPrDefault><w:pPrDefault><w:pPr>'
+      + '<w:spacing w:after="120" w:line="240" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>'
+      + '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/>'
+      + '<w:pPr><w:spacing w:after="120" w:line="240" w:lineRule="auto"/></w:pPr>'
+      + '<w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:style>'
+      + '<w:style w:type="paragraph" w:styleId="BodyText"><w:name w:val="Body Text"/><w:basedOn w:val="Normal"/><w:qFormat/>'
+      + '<w:pPr><w:spacing w:after="120" w:line="240" w:lineRule="auto"/></w:pPr>'
+      + '<w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:style>'
+      + '<w:style w:type="paragraph" w:styleId="CellText"><w:name w:val="Table Text"/><w:basedOn w:val="Normal"/><w:qFormat/>'
+      + '<w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>'
+      + '<w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:style>'
+      + '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="BodyText"/>'
+      + '<w:pPr><w:keepNext/><w:keepLines/><w:spacing w:before="360" w:after="120"/><w:outlineLvl w:val="0"/></w:pPr>'
+      + '<w:rPr><w:rFonts w:ascii="Cambria" w:eastAsia="Cambria" w:hAnsi="Cambria" w:cs="Cambria"/><w:b/><w:bCs/>'
+      + '<w:color w:val="365F91"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr></w:style>'
+      + '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:next w:val="BodyText"/>'
+      + '<w:pPr><w:keepNext/><w:keepLines/><w:spacing w:before="240" w:after="60"/><w:outlineLvl w:val="1"/></w:pPr>'
+      + '<w:rPr><w:rFonts w:ascii="Cambria" w:eastAsia="Cambria" w:hAnsi="Cambria" w:cs="Cambria"/><w:b/><w:bCs/>'
+      + '<w:color w:val="4F81BD"/><w:sz w:val="26"/><w:szCs w:val="26"/></w:rPr></w:style>'
+      + '<w:style w:type="table" w:styleId="TableGrid"><w:name w:val="Table Grid"/><w:basedOn w:val="TableNormal"/>'
+      + '<w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>'
+      + '<w:tblPr><w:tblBorders>'
+      + '<w:top w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+      + '<w:left w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+      + '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+      + '<w:right w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+      + '<w:insideH w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+      + '<w:insideV w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+      + '</w:tblBorders></w:tblPr></w:style>'
+      + '<w:style w:type="table" w:styleId="TableNormal" w:default="1"><w:name w:val="Normal Table"/>'
+      + '<w:tblPr><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="108" w:type="dxa"/>'
+      + '<w:bottom w:w="0" w:type="dxa"/><w:right w:w="108" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>'
+      + '</w:styles>';
+  }
+
+  /* ------------------------ zip writer ------------------------------ */
+  const CRC_TABLE = (function () {
+    const t = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[i] = c >>> 0;
+    }
+    return t;
+  })();
+
+  function crc32(u8) {
+    let crc = 0xFFFFFFFF;
+    for (let i = 0; i < u8.length; i++) crc = CRC_TABLE[(crc ^ u8[i]) & 0xFF] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function zip(files) {
+    const now = new Date();
+    const dosTime = ((now.getHours() & 31) << 11) | ((now.getMinutes() & 63) << 5) | ((now.getSeconds() / 2) & 31);
+    const dosDate = (((now.getFullYear() - 1980) & 127) << 9) | (((now.getMonth() + 1) & 15) << 5) | (now.getDate() & 31);
+
+    const entries = files.map(f => {
+      const data = typeof f.data === 'string' ? TE.encode(f.data) : f.data;
+      return { name: TE.encode(f.name), data: data, crc: crc32(data) };
+    });
+
+    let size = 0;
+    entries.forEach(e => { size += 30 + e.name.length + e.data.length + 46 + e.name.length; });
+    size += 22;
+
+    const buf = new Uint8Array(size);
+    const dv = new DataView(buf.buffer);
+    let off = 0;
+    const central = [];
+
+    for (const e of entries) {
+      const localOff = off;
+      dv.setUint32(off, 0x04034b50, true); off += 4;
+      dv.setUint16(off, 20, true); off += 2;
+      dv.setUint16(off, 0x0800, true); off += 2;
+      dv.setUint16(off, 0, true); off += 2;
+      dv.setUint16(off, dosTime, true); off += 2;
+      dv.setUint16(off, dosDate, true); off += 2;
+      dv.setUint32(off, e.crc, true); off += 4;
+      dv.setUint32(off, e.data.length, true); off += 4;
+      dv.setUint32(off, e.data.length, true); off += 4;
+      dv.setUint16(off, e.name.length, true); off += 2;
+      dv.setUint16(off, 0, true); off += 2;
+      buf.set(e.name, off); off += e.name.length;
+      buf.set(e.data, off); off += e.data.length;
+      central.push({ name: e.name, crc: e.crc, size: e.data.length, offset: localOff });
+    }
+
+    const cdStart = off;
+    for (const c of central) {
+      dv.setUint32(off, 0x02014b50, true); off += 4;
+      dv.setUint16(off, 20, true); off += 2;
+      dv.setUint16(off, 20, true); off += 2;
+      dv.setUint16(off, 0x0800, true); off += 2;
+      dv.setUint16(off, 0, true); off += 2;
+      dv.setUint16(off, dosTime, true); off += 2;
+      dv.setUint16(off, dosDate, true); off += 2;
+      dv.setUint32(off, c.crc, true); off += 4;
+      dv.setUint32(off, c.size, true); off += 4;
+      dv.setUint32(off, c.size, true); off += 4;
+      dv.setUint16(off, c.name.length, true); off += 2;
+      dv.setUint16(off, 0, true); off += 2;
+      dv.setUint16(off, 0, true); off += 2;
+      dv.setUint16(off, 0, true); off += 2;
+      dv.setUint16(off, 0, true); off += 2;
+      dv.setUint32(off, 0, true); off += 4;
+      dv.setUint32(off, c.offset, true); off += 4;
+      buf.set(c.name, off); off += c.name.length;
+    }
+    const cdSize = off - cdStart;
+
+    dv.setUint32(off, 0x06054b50, true); off += 4;
+    dv.setUint16(off, 0, true); off += 2;
+    dv.setUint16(off, 0, true); off += 2;
+    dv.setUint16(off, central.length, true); off += 2;
+    dv.setUint16(off, central.length, true); off += 2;
+    dv.setUint32(off, cdSize, true); off += 4;
+    dv.setUint32(off, cdStart, true); off += 4;
+    dv.setUint16(off, 0, true); off += 2;
+
+    return buf.subarray(0, off);
+  }
+
+  /* ------------------------ docx assembly --------------------------- */
+  function buildDocx(cfg) {
+    const nowIso = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+    const title = ((cfg.header && cfg.header.title) || 'System Test Report') + ' - ' + (cfg.study || '');
+    const parts = [
+      {
+        name: '[Content_Types].xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+          + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+          + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+          + '<Default Extension="xml" ContentType="application/xml"/>'
+          + '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+          + '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+          + '<Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>'
+          + '<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>'
+          + '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
+          + '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
+          + '</Types>'
+      },
+      {
+        name: '_rels/.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+          + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+          + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+          + '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>'
+          + '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>'
+          + '</Relationships>'
+      },
+      {
+        name: 'word/_rels/document.xml.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+          + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+          + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+          + '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>'
+          + '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>'
+          + '</Relationships>'
+      },
+      { name: 'word/document.xml', data: documentXml(cfg) },
+      { name: 'word/styles.xml', data: stylesXml() },
+      { name: 'word/header1.xml', data: headerXml(cfg) },
+      { name: 'word/footer1.xml', data: footerXml(cfg) },
+      {
+        name: 'docProps/core.xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+          + '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"'
+          + ' xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/"'
+          + ' xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+          + '<dc:title>' + esc(title) + '</dc:title>'
+          + '<dc:subject>' + esc('T15 System Test Report - ' + (cfg.study || '')) + '</dc:subject>'
+          + '<dc:creator>' + esc(cfg.designer || '') + '</dc:creator>'
+          + '<cp:lastModifiedBy>' + esc(cfg.designer || '') + '</cp:lastModifiedBy>'
+          + '<dcterms:created xsi:type="dcterms:W3CDTF">' + nowIso + '</dcterms:created>'
+          + '<dcterms:modified xsi:type="dcterms:W3CDTF">' + nowIso + '</dcterms:modified>'
+          + '</cp:coreProperties>'
+      },
+      {
+        name: 'docProps/app.xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+          + '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"'
+          + ' xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
+          + '<Application>Microsoft Office Word</Application><DocSecurity>0</DocSecurity>'
+          + '<Company>' + esc(cfg.sponsor || '') + '</Company>'
+          + '</Properties>'
+      }
+    ];
+    return zip(parts);
+  }
+
+  /* ------------------------------------------------------------------ */
+  return {
+    readWorkbook: readWorkbook,
+    analyse: analyse,
+    deriveSteps: deriveSteps,
+    joinAnd: joinAnd,
+    parseFileName: parseFileName,
+    bumpVersion: bumpVersion,
+    buildDocx: buildDocx,
+    todayDDMMYYYY: todayDDMMYYYY,
+    todayYYYYMMDD: todayYYYYMMDD,
+    unzip: unzip,
+    inflateRawFallback: inflateRawFallback,
+    _internal: {
+      parseSheet: parseSheet, parseStyles: parseStyles, parseTheme: parseTheme,
+      parseSharedStrings: parseSharedStrings, normRgb: normRgb, crc32: crc32, zip: zip,
+      documentXml: documentXml, stylesXml: stylesXml, headerXml: headerXml, footerXml: footerXml
+    }
+  };
+});
+
+</script>
+
+<script>
+(function () {
+  'use strict';
+  var core = window.T15Core;
+  var el = function (id) { return document.getElementById(id); };
+
+  var state = {
+    fileName: '', wb: null, sheetName: '', analysis: null, records: [], steps: [],
+    auto: { study: '', version: '', date: '' }, loading: false
+  };
+
+  var LS_KEY = 't15gen.template.v1';
+  var TEMPLATE_FIELDS = ['hName', 'hTitle', 'hNumber', 'hVersion', 'sponsor', 'designer'];
+
+  /* ---------- template persistence ---------- */
+  function loadTemplate() {
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      if (!raw) return;
+      var saved = JSON.parse(raw);
+      TEMPLATE_FIELDS.forEach(function (k) {
+        if (saved[k]) el(k).value = saved[k];
+      });
+    } catch (e) { /* ignore */ }
+  }
+  function saveTemplate() {
+    try {
+      var saved = {};
+      TEMPLATE_FIELDS.forEach(function (k) { saved[k] = el(k).value; });
+      localStorage.setItem(LS_KEY, JSON.stringify(saved));
+    } catch (e) { /* ignore */ }
+  }
+
+  /* ---------- small helpers ---------- */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function banner(host, kind, html) {
+    host.innerHTML = html ? '<div class="banner ' + kind + '">' + html + '</div>' : '';
+  }
+  function val(id) { return el(id).value.trim(); }
+
+  /* ---------- version rule: the T15 is one version ahead of the CDMS ---------- */
+  var versionManual = false;
+  function expectedT15Version() { return core.bumpVersion(val('specVersion')); }
+  function syncVersion(force) {
+    if (force || !versionManual) el('t15Version').value = expectedT15Version();
+    renderVersionHint();
+  }
+  function renderVersionHint() {
+    var host = el('versionHint');
+    var cdms = val('specVersion'), t15 = val('t15Version'), auto = expectedT15Version();
+    if (!host) return;
+    if (!cdms) { host.textContent = 'Filled in automatically from the CDMS version.'; return; }
+    if (t15 === auto) { host.innerHTML = 'CDMS <b>' + esc(cdms) + '</b> &rarr; T15 <b>' + esc(t15) + '</b>'; return; }
+    host.innerHTML = 'CDMS <b>' + esc(cdms) + '</b>, automatic value would be <b>' + esc(auto) + '</b>';
+  }
+
+  /* ---------- file loading ---------- */
+  function setStatus(text) { el('status').textContent = text; }
+
+  async function loadFile(file) {
+    if (!file) return;
+    var name = file.name || '';
+    if (!/\.(xlsx|xlsm)$/i.test(name)) {
+      banner(el('loadError'), 'err', 'This file is not a .xlsx or .xlsm workbook. In Excel, use <b>Save As &rarr; Excel Workbook (.xlsx)</b> and load that copy.');
+      return;
+    }
+    banner(el('loadError'), '', '');
+    state.loading = true;
+    setStatus('Reading ' + name + '…');
+    try {
+      var buf = new Uint8Array(await file.arrayBuffer());
+      var wb = await core.readWorkbook(buf);
+      state.wb = wb;
+      state.fileName = name;
+      var meta = core.parseFileName(name);
+      state.auto = meta;
+      if (meta.study) el('study').value = meta.study;
+      if (meta.version) el('specVersion').value = meta.version;
+      if (meta.date) el('specDate').value = meta.date;
+      if (!val('systemVersion')) el('systemVersion').value = core.todayYYYYMMDD();
+      versionManual = false;
+      syncVersion(true);
+
+      renderFileInfo();
+      el('detailsCard').hidden = false;
+      el('rowsCard').hidden = false;
+      el('stepsCard').hidden = false;
+
+      var preferred = wb.sheets[0].name;
+      var best = null;
+      wb.sheets.forEach(function (s) {
+        if (best) return;
+        try { core.analyse(wb, s.name); best = s.name; } catch (e) { /* try next sheet */ }
+      });
+      if (best) preferred = best;
+      el('sheetSelect').value = preferred;
+      analyseSheet(preferred);
+    } catch (err) {
+      state.wb = null;
+      banner(el('loadError'), 'err', 'Could not read the workbook: ' + esc(err.message || err));
+      setStatus('Could not read the workbook');
+      el('detailsCard').hidden = true;
+      el('rowsCard').hidden = true;
+      el('stepsCard').hidden = true;
+      el('generate').disabled = true;
+      el('summary').textContent = 'Load a CDMS to begin.';
+    } finally {
+      state.loading = false;
+    }
+  }
+
+  function renderFileInfo() {
+    var wb = state.wb;
+    var opts = wb.sheets.map(function (s) {
+      return '<option value="' + esc(s.name) + '">' + esc(s.name) + '</option>';
+    }).join('');
+    el('fileInfo').hidden = false;
+    el('fileInfo').innerHTML =
+      '<div class="filebar">' +
+        '<span class="name">' + esc(state.fileName) + '</span>' +
+        '<span class="pill">Worksheet <select id="sheetSelect" style="font:inherit;border:0;background:transparent;color:inherit;font-weight:600">' + opts + '</select></span>' +
+        '<span class="pill" id="fileStats"></span>' +
+      '</div>';
+    el('sheetSelect').addEventListener('change', function () { analyseSheet(this.value); });
+  }
+
+  function analyseSheet(sheetName) {
+    var res;
+    try {
+      res = core.analyse(state.wb, sheetName);
+    } catch (err) {
+      banner(el('loadError'), 'err', esc(err.message || err) +
+        '<br><br>Expected a header row with columns such as <span class="kbd">Source Table</span>, <span class="kbd">Source Column</span>, <span class="kbd">Target Table</span>, <span class="kbd">Target Column</span> and <span class="kbd">Mapping Logic (pseudo code)</span>.');
+      state.analysis = null;
+      state.records = [];
+      el('rowsHost').innerHTML = '';
+      el('stepsHost').innerHTML = '';
+      el('generate').disabled = true;
+      setStatus('No mapping header found on ' + sheetName);
+      return;
+    }
+    state.analysis = res;
+    state.sheetName = sheetName;
+    state.records = res.records;
+    banner(el('loadError'), '', '');
+    el('fileStats').textContent = res.records.length + ' data rows · header row ' + res.header.row.num;
+    renderRows();
+    recompute();
+    setStatus(state.fileName + ' · ' + sheetName);
+  }
+
+  /* ---------- rows table ---------- */
+  function renderRows() {
+    var showAll = el('showAll').checked;
+    var recs = state.records.filter(function (r) { return showAll || r.included || r.markedFill || r.markedText; });
+    el('rowsCount').textContent = state.records.filter(function (r) { return r.included; }).length +
+      ' of ' + state.records.length + ' rows selected';
+
+    if (!recs.length) {
+      el('rowsHost').innerHTML = '<div class="empty">No highlighted rows were found on this sheet.<br>' +
+        'In the CDMS, highlight the changed rows (yellow is the convention) and load the file again, ' +
+        'or tick <b>Show all rows</b> above and select them by hand.</div>';
+      return;
+    }
+
+    var html = '<div class="tablewrap"><table><thead><tr>' +
+      '<th style="width:44px">In T15</th><th>Item #</th><th>Source table</th><th>Source column</th>' +
+      '<th>Target table</th><th>Target column</th><th>Mapping logic (pseudo code)</th><th>Marker</th>' +
+      '</tr></thead><tbody>';
+    recs.forEach(function (r) {
+      var idx = state.records.indexOf(r);
+      var fill = r.fill ? '<span class="swatch" style="background:' + esc(r.fill) + '"></span>' + esc(r.fill) : '&mdash;';
+      html += '<tr class="' + (r.included ? 'on' : '') + '">' +
+        '<td><input type="checkbox" data-i="' + idx + '" class="rowbox"' + (r.included ? ' checked' : '') + '></td>' +
+        '<td class="num">' + r.itemNo + '</td>' +
+        '<td>' + esc(r.row.sourceTable || '—') + '</td>' +
+        '<td>' + esc(r.row.sourceColumn || '—') + '</td>' +
+        '<td>' + esc(r.row.targetTable || '—') + '</td>' +
+        '<td>' + esc(r.row.targetColumn || '—') + '</td>' +
+        '<td>' + esc(r.row.mapping || '') + '</td>' +
+        '<td>' + fill + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el('rowsHost').innerHTML = html;
+
+    Array.prototype.forEach.call(el('rowsHost').querySelectorAll('.rowbox'), function (box) {
+      box.addEventListener('change', function () {
+        state.records[+this.getAttribute('data-i')].included = this.checked;
+        this.closest('tr').classList.toggle('on', this.checked);
+        renderRows();
+        recompute();
+      });
+    });
+  }
+
+  /* ---------- steps ---------- */
+  function recompute() {
+    state.steps = core.deriveSteps(state.records, { groupBy: el('groupBy').value });
+    renderSteps();
+    updateSummary();
+    el('generate').disabled = !state.steps.length;
+  }
+
+  function renderSteps() {
+    var steps = state.steps;
+    if (!steps.length) {
+      el('stepsHost').innerHTML = '<div class="empty">No marked rows, so no test steps yet.<br>' +
+        'Highlight the changed rows in the CDMS, or tick rows in section 3.</div>';
+      return;
+    }
+    var html = '<div class="tablewrap"><table class="steps"><thead><tr>' +
+      '<th>Test Step</th><th>Test Step Description</th><th>Form Name</th><th>Field Name</th>' +
+      '<th>Item # Spec</th><th>Expected Result</th><th>Actual Result</th><th>Test Result (Pass/ Fail)</th>' +
+      '<th>Test Subject</th><th>Tester Name</th><th>Comments</th></tr></thead><tbody>';
+    steps.forEach(function (s) {
+      html += '<tr>' +
+        '<td class="num">' + esc(s.stepNo) + '</td>' +
+        '<td>' + esc(s.description) + '</td>' +
+        '<td>' + esc(s.formName) + '</td>' +
+        '<td>' + esc(s.fieldName) + '</td>' +
+        '<td class="num">' + esc(s.itemSpec) + '</td>' +
+        '<td>' + esc(s.expected) + '</td>' +
+        '<td>' + esc(s.actual) + '</td><td>' + esc(s.result) + '</td>' +
+        '<td>' + esc(s.subject) + '</td><td>' + esc(s.tester) + '</td><td>' + esc(s.comments) + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el('stepsHost').innerHTML = html;
+  }
+
+  function updateSummary() {
+    var marked = state.records.filter(function (r) { return r.included; }).length;
+    if (!state.records.length) {
+      el('summary').textContent = 'Load a CDMS to begin.';
+      return;
+    }
+    el('summary').innerHTML = '<b>' + marked + '</b> marked row' + (marked === 1 ? '' : 's') +
+      ' &rarr; <b>' + state.steps.length + '</b> test step' + (state.steps.length === 1 ? '' : 's') +
+      (val('study') ? ' &middot; ' + esc(val('study')) : '');
+  }
+
+  /* ---------- generate ---------- */
+  function download(bytes, filename) {
+    var blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1500);
+  }
+
+  function generate() {
+    if (!state.steps.length) return;
+    var study = val('study');
+    var cfg = {
+      study: study,
+      specVersion: val('t15Version') || expectedT15Version(),
+      specDate: val('specDate'),
+      execution: val('execution') || '1',
+      designer: val('designer'),
+      release: el('release').checked,
+      systemVersion: val('systemVersion'),
+      sponsor: val('sponsor'),
+      header: {
+        nameId: val('hName'),
+        title: val('hTitle'),
+        number: val('hNumber'),
+        version: val('hVersion')
+      },
+      steps: state.steps
+    };
+    try {
+      var bytes = core.buildDocx(cfg);
+      var safe = (study || 'Study').replace(/[^A-Za-z0-9._-]+/g, '_');
+      download(bytes, safe + '_Preconf_T15.docx');
+      banner(el('metaNote'), 'ok', 'T15 generated: <b>' + esc(safe) + '_Preconf_T15.docx</b> with ' +
+        state.steps.length + ' test step' + (state.steps.length === 1 ? '' : 's') + '.');
+      saveTemplate();
+    } catch (err) {
+      banner(el('metaNote'), 'err', 'Could not build the document: ' + esc(err.message || err));
+    }
+  }
+
+  /* ---------- wiring ---------- */
+  el('file').addEventListener('change', function () { loadFile(this.files[0]); });
+  var drop = el('drop');
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); });
+  });
+  drop.addEventListener('drop', function (e) {
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) loadFile(f);
+  });
+
+  el('btnAll').addEventListener('click', function () {
+    state.records.forEach(function (r) { r.included = true; });
+    renderRows(); recompute();
+  });
+  el('btnNone').addEventListener('click', function () {
+    state.records.forEach(function (r) { r.included = false; });
+    renderRows(); recompute();
+  });
+  el('showAll').addEventListener('change', renderRows);
+  el('groupBy').addEventListener('change', function () { saveTemplate(); recompute(); });
+  el('specVersion').addEventListener('input', function () {
+    versionManual = false;
+    syncVersion(true);
+    updateSummary();
+  });
+  el('t15Version').addEventListener('input', function () {
+    versionManual = true;
+    renderVersionHint();
+  });
+  ['study', 'specDate', 'execution'].forEach(function (id) {
+    el(id).addEventListener('input', updateSummary);
+  });
+  el('generate').addEventListener('click', generate);
+
+  /* ---------- theme: dark by default, light optional ---------- */
+  var THEME_KEY = 't15gen.theme';
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    var btn = el('themeBtn');
+    var next = theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+    btn.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+    btn.setAttribute('title', next);
+    btn.setAttribute('aria-label', next);
+  }
+  (function initTheme() {
+    var saved = null;
+    try { saved = localStorage.getItem(THEME_KEY); } catch (e) { /* ignore */ }
+    applyTheme(saved === 'light' ? 'light' : 'dark');
+  })();
+  el('themeBtn').addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+  });
+
+  loadTemplate();
+  el('systemVersion').value = el('systemVersion').value || core.todayYYYYMMDD();
+  syncVersion(true);
+})();
+</script>
+</body>
+</html>
