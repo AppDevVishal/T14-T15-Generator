@@ -40,6 +40,8 @@
     color-scheme:light;
   }
   *{box-sizing:border-box}
+  /* a [hidden] element must stay hidden even where a class sets display */
+  [hidden]{display:none !important}
   html,body{margin:0;padding:0}
   body{
     background:var(--glow),var(--bg); background-color:var(--bg); color:var(--ink);
@@ -127,6 +129,45 @@
   .btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:var(--accent-ink)}
   .btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring)}
   .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  /* ---------- target table picker ---------- */
+  .tgts{display:grid;grid-template-columns:repeat(auto-fill,minmax(234px,1fr));gap:10px}
+  .tgt{
+    display:flex;align-items:flex-start;gap:10px;border:1px solid var(--rule);border-radius:var(--radius-sm);
+    background:var(--panel-2);padding:10px 12px;cursor:pointer;transition:border-color .15s,background .15s
+  }
+  .tgt:hover{border-color:var(--accent)}
+  .tgt.on{border-color:var(--accent);background:var(--accent-soft)}
+  .tgt:focus-within{box-shadow:0 0 0 3px var(--ring)}
+  .tgt input{width:16px;height:16px;margin:2px 0 0;accent-color:var(--accent);flex:none;cursor:pointer}
+  .tgt .body{min-width:0;display:flex;flex-direction:column;gap:2px}
+  .tgt .nm{font-size:13.5px;font-weight:600;color:var(--ink);word-break:break-word}
+  .tgt .nm .none{color:var(--ink-3);font-weight:500;font-style:italic}
+  .tgt .mt{font-size:11.8px;color:var(--ink-2)}
+  .tgt.nomark{border-style:dashed}
+
+  /* ---------- target table search ---------- */
+  .tgtsearch{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+  .srch{position:relative;display:flex;align-items:center;flex:1 1 280px;max-width:440px;min-width:0}
+  .srch .mag{position:absolute;left:11px;width:16px;height:16px;color:var(--ink-3);pointer-events:none}
+  .srch input{
+    font:inherit;font-size:13.5px;font-weight:400;width:100%;color:var(--ink);
+    background:var(--panel-2);background-color:var(--panel-2);border:1px solid var(--rule);border-radius:999px;
+    padding:8px 34px;transition:border-color .15s,box-shadow .15s
+  }
+  .srch input::placeholder{color:var(--ink-3)}
+  .srch input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--ring)}
+  .srch input::-webkit-search-cancel-button,.srch input::-webkit-search-decoration{-webkit-appearance:none;appearance:none}
+  .srch .xbtn{
+    position:absolute;right:7px;width:22px;height:22px;display:grid;place-items:center;padding:0;
+    border:0;border-radius:50%;background:transparent;color:var(--ink-2);font:inherit;font-size:16px;line-height:1;cursor:pointer
+  }
+  .srch .xbtn:hover{color:var(--accent);background:var(--accent-soft)}
+  .srch .xbtn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring)}
+  .tgtcount{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .tgtline{font-size:13.2px;color:var(--ink-2);margin:14px 0 0}
+  .tgtline b{color:var(--ink)}
+  .pill.off{color:var(--warn);border-color:var(--warn-rule);background:var(--warn-bg);white-space:nowrap}
 
   /* ---------- tables ---------- */
   .tablewrap{overflow:auto;max-height:420px;border:1px solid var(--rule);border-radius:var(--radius-sm)}
@@ -280,19 +321,46 @@
     <div id="metaNote"></div>
   </section>
 
+  <section class="card" id="targetsCard" hidden>
+    <h2><span class="num">3</span> Target tables <small>choose which tables this T15 covers</small></h2>
+    <p class="lede" id="targetsLede">Every target table in the CDMS is listed. Only rows whose table is ticked can appear in the T15.</p>
+    <div class="toolbar" id="tgtTools">
+      <button class="btn" id="tgtAll" type="button">Select all tables</button>
+      <button class="btn" id="tgtNone" type="button">Clear all</button>
+      <button class="btn" id="tgtMarked" type="button">Only tables with marked rows</button>
+    </div>
+    <div class="tgtsearch" id="tgtSearchRow">
+      <span class="srch">
+        <svg class="mag" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="10.6" cy="10.6" r="6.3" fill="none" stroke="currentColor" stroke-width="1.9"/>
+          <path d="m15.4 15.4 4.4 4.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        </svg>
+        <input type="search" id="tgtSearch" autocomplete="off" spellcheck="false"
+          placeholder="Search a target table, for example APRP" aria-label="Search target tables">
+        <button class="xbtn" id="tgtSearchClear" type="button" title="Clear the search" aria-label="Clear the search" hidden>&times;</button>
+      </span>
+      <span class="tgtcount" id="tgtCount" aria-live="polite"></span>
+      <button class="btn" id="tgtShownAll" type="button" hidden>Tick the results</button>
+      <button class="btn" id="tgtShownNone" type="button" hidden>Untick the results</button>
+    </div>
+    <div class="tgts" id="targetsHost"></div>
+    <div id="targetsNote"></div>
+  </section>
+
   <section class="card" id="rowsCard" hidden>
-    <h2><span class="num">3</span> Marked rows <small id="rowsCount"></small></h2>
-    <p class="lede">These rows become the test steps. Untick anything that should not be in this T15.</p>
+    <h2><span class="num">4</span> Marked rows <small id="rowsCount"></small></h2>
+    <p class="lede">These rows become the test steps. Untick anything that should not be in this T15; rows from an unticked target table stay out of it.</p>
     <div class="toolbar">
       <button class="btn" id="btnAll" type="button">Select all</button>
       <button class="btn" id="btnNone" type="button">Clear all</button>
       <label class="checkline" style="margin:0"><input type="checkbox" id="showAll"> Show all rows, to tick rows the highlight missed</label>
+      <label class="checkline" style="margin:0"><input type="checkbox" id="showExcluded"> Also show rows from unticked tables</label>
     </div>
     <div id="rowsHost"></div>
   </section>
 
   <section class="card" id="stepsCard" hidden>
-    <h2><span class="num">4</span> Test steps <small>this is the Test Script table in the T15</small></h2>
+    <h2><span class="num">5</span> Test steps <small>this is the Test Script table in the T15</small></h2>
     <div id="stepsHost"></div>
   </section>
 
@@ -909,10 +977,100 @@
     return best;
   }
 
+  /* ------------------------------------------------------------------ */
+  /* target-table selection                                              */
+  /* ------------------------------------------------------------------ */
+  const TABLE_SPLIT = /[,;\/|&+\n]+|\s+and\s+/i;
+
+  /* A cell can name more than one table ("EG, APRP", "EG / APRP"), and a row then
+     belongs to every table it names. Matching ignores case, spacing and
+     surrounding punctuation. A blank cell keeps its own key ("") so those rows
+     can be included or left out like any other table. */
+  function tableKeys(v) {
+    const s = String(v == null ? '' : v).trim();
+    if (!s) return [''];
+    const keys = [];
+    s.split(TABLE_SPLIT).forEach(function (part) {
+      const k = part.trim().toLowerCase().replace(/\s+/g, ' ')
+        .replace(/^[\[(<"']+/, '').replace(/[\]>)"'.:]+$/, '');
+      if (k && keys.indexOf(k) === -1) keys.push(k);
+    });
+    return keys.length ? keys : [''];
+  }
+
+  /* Which column names the tables: the target table, else the source table
+     (a CDMS without a Target Table column still has to be selectable), else null. */
+  function targetField(records) {
+    const has = function (f) {
+      return records.some(function (r) { return String(r.row[f] == null ? '' : r.row[f]).trim() !== ''; });
+    };
+    if (has('targetTable')) return 'targetTable';
+    if (has('sourceTable')) return 'sourceTable';
+    return null;
+  }
+
+  /* Every table on the sheet, with its row and marked-row counts, sorted by name.
+     Rows without a table fall into an option whose label is empty. */
+  function targetOptions(records) {
+    const field = targetField(records);
+    const byKey = new Map();
+    const list = [];
+    records.forEach(function (r) {
+      const raw = field ? String(r.row[field] == null ? '' : r.row[field]).trim() : '';
+      tableKeys(raw).forEach(function (key) {
+        let o = byKey.get(key);
+        if (!o) {
+          o = { key: key, label: '', variants: [], total: 0, marked: 0 };
+          byKey.set(key, o);
+          list.push(o);
+        }
+        if (raw) {
+          if (!o.variantCounts) o.variantCounts = new Map();
+          if (o.variants.indexOf(raw) === -1) o.variants.push(raw);
+          o.variantCounts.set(raw, (o.variantCounts.get(raw) || 0) + 1);
+        }
+        o.total++;
+        if (r.markedFill || r.markedText) o.marked++;
+      });
+    });
+    /* label: the kind of cell that names only this table, most frequent first,
+       so "EG, APRP" never becomes the name of either table */
+    const mostCommon = function (o, pool) {
+      let best = '', bestN = -1;
+      pool.forEach(function (v) {
+        const n = (o.variantCounts && o.variantCounts.get(v)) || 0;
+        if (n > bestN) { bestN = n; best = v; }
+      });
+      return best;
+    };
+    list.forEach(function (o) {
+      const single = o.variants.filter(function (v) { return tableKeys(v).length === 1; });
+      o.label = mostCommon(o, single) || mostCommon(o, o.variants) || '';
+      /* so a search for these words finds the rows with no table on them */
+      if (!o.label) o.searchAlias = 'no target table blank none unassigned';
+    });
+    list.sort(function (a, b) {
+      if (!a.label !== !b.label) return a.label ? -1 : 1;
+      return a.label.localeCompare(b.label, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    return { field: field, options: list };
+  }
+
   function deriveSteps(records, opts) {
     opts = opts || {};
     const groupMode = opts.groupBy || 'domain';
-    const included = records.filter(r => r.included).sort((a, b) => a.itemNo - b.itemNo);
+    const field = opts.targetField !== undefined ? opts.targetField : targetField(records);
+    const chosen = opts.targets == null ? null : new Set(
+      (Array.isArray(opts.targets) ? opts.targets : [opts.targets])
+        .map(function (k) { return String(k == null ? '' : k).trim().toLowerCase(); })
+    );
+    const inChosen = function (rec) {
+      if (!chosen) return true;
+      const raw = field ? rec.row[field] : '';
+      return tableKeys(raw).some(function (k) { return chosen.has(k); });
+    };
+    const included = records.filter(function (r) { return r.included && inChosen(r); })
+      .sort((a, b) => a.itemNo - b.itemNo);
     const groups = [];
     const index = new Map();
 
@@ -932,14 +1090,16 @@
     const start = opts.startAt == null ? 1 : opts.startAt;
     return groups.map((g, i) => {
       const targets = distinct(g.records.map(r => r.row.targetColumn));
-      const dataset = distinct(g.records.map(r => r.row.targetTable))[0] || g.domain || 'NA';
       const tables = distinct(g.records.map(r => r.row.targetTable));
-      const domainLabel = tables[0] || dataset;
 
       // form name: source table used by the mapped (non-derived) rows
       const mapped = g.records.filter(r => !isDerivedSource(r.row.sourceTable));
       const sourceTables = mapped.map(r => r.row.sourceTable);
       const formName = mode(sourceTables) || mode(g.records.map(r => r.row.sourceTable)) || 'NA';
+
+      // dataset label: the target table, else the form the rows came from, so a
+      // CDMS with blank target tables still reads sensibly
+      const domainLabel = tables[0] || (formName !== 'NA' ? formName : '') || g.domain || 'NA';
 
       // field name: source columns of the mapped rows only
       const sourceCols = (mapped.length ? mapped : g.records).map(r => r.row.sourceColumn);
@@ -1663,6 +1823,9 @@
     readWorkbook: readWorkbook,
     analyse: analyse,
     deriveSteps: deriveSteps,
+    tableKeys: tableKeys,
+    targetField: targetField,
+    targetOptions: targetOptions,
     joinAnd: joinAnd,
     parseFileName: parseFileName,
     bumpVersion: bumpVersion,
@@ -1689,6 +1852,7 @@
 
   var state = {
     fileName: '', wb: null, sheetName: '', analysis: null, records: [], steps: [],
+    tgt: { field: null, options: [] }, targets: new Set(), tgtQuery: '',
     auto: { study: '', version: '', date: '' }, loading: false
   };
 
@@ -1769,6 +1933,7 @@
 
       renderFileInfo();
       el('detailsCard').hidden = false;
+      el('targetsCard').hidden = false;
       el('rowsCard').hidden = false;
       el('stepsCard').hidden = false;
 
@@ -1786,6 +1951,7 @@
       banner(el('loadError'), 'err', 'Could not read the workbook: ' + esc(err.message || err));
       setStatus('Could not read the workbook');
       el('detailsCard').hidden = true;
+      el('targetsCard').hidden = true;
       el('rowsCard').hidden = true;
       el('stepsCard').hidden = true;
       el('generate').disabled = true;
@@ -1819,8 +1985,14 @@
         '<br><br>Expected a header row with columns such as <span class="kbd">Source Table</span>, <span class="kbd">Source Column</span>, <span class="kbd">Target Table</span>, <span class="kbd">Target Column</span> and <span class="kbd">Mapping Logic (pseudo code)</span>.');
       state.analysis = null;
       state.records = [];
+      state.tgt = { field: null, options: [] };
+      state.targets = new Set();
+      state.tgtQuery = '';
       el('rowsHost').innerHTML = '';
       el('stepsHost').innerHTML = '';
+      el('targetsHost').innerHTML = '';
+      el('targetsNote').innerHTML = '';
+      el('tgtSearchRow').hidden = true;
       el('generate').disabled = true;
       setStatus('No mapping header found on ' + sheetName);
       return;
@@ -1830,22 +2002,171 @@
     state.records = res.records;
     banner(el('loadError'), '', '');
     el('fileStats').textContent = res.records.length + ' data rows · header row ' + res.header.row.num;
+    /* every table starts ticked, so the default output is unchanged */
+    state.tgt = core.targetOptions(res.records);
+    state.targets = new Set(state.tgt.options.map(function (o) { return o.key; }));
+    state.tgtQuery = '';
+    el('tgtSearch').value = '';
+    renderTargets();
     renderRows();
     recompute();
     setStatus(state.fileName + ' · ' + sheetName);
   }
 
+  /* ---------- target tables ---------- */
+  function rowTableKeys(r) {
+    return state.tgt.field ? core.tableKeys(r.row[state.tgt.field]) : [''];
+  }
+  function rowInTargets(r) {
+    if (!state.tgt.field) return true;
+    var keys = rowTableKeys(r);
+    for (var i = 0; i < keys.length; i++) { if (state.targets.has(keys[i])) return true; }
+    return false;
+  }
+  function deliveredRows() {
+    return state.records.filter(function (r) { return r.included && rowInTargets(r); });
+  }
+
+  function renderTargets() {
+    var lede = el('targetsLede');
+    var field = state.tgt.field, options = state.tgt.options;
+
+    if (!field || !options.length) {
+      el('tgtTools').hidden = true;
+      el('tgtSearchRow').hidden = true;
+      lede.textContent = 'This worksheet has no Target Table column and no Source Table column, so every marked row is used.';
+      el('targetsHost').innerHTML = '<div class="empty">Nothing to choose here: the T15 takes every marked row on this sheet.</div>';
+      el('targetsNote').innerHTML = '';
+      return;
+    }
+
+    el('tgtTools').hidden = false;
+    el('tgtSearchRow').hidden = false;
+    lede.innerHTML = field === 'targetTable'
+      ? 'Every target table in the CDMS is listed, marked or not. Only rows whose target table is ticked can appear in the T15.'
+      : 'This worksheet has no <b>Target Table</b> column, so the choice is by <b>Source table</b> instead. Only rows from a ticked table can appear in the T15.';
+
+    renderTileList();
+    renderTargetNote();
+  }
+
+  /* search: every word of the query has to appear somewhere in the table name,
+     in any order, ignoring case and punctuation, so "aprp rp" still finds a
+     longer table name built from both parts */
+  function searchWords(v) {
+    return String(v == null ? '' : v).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+      .split(' ').filter(Boolean);
+  }
+  function shownOptions() {
+    var words = searchWords(state.tgtQuery);
+    if (!words.length) return state.tgt.options.slice();
+    return state.tgt.options.filter(function (o) {
+      var hay = searchWords([o.label].concat(o.variants).join(' ') + ' ' + (o.searchAlias || '')).join(' ');
+      return words.every(function (w) { return hay.indexOf(w) !== -1; });
+    });
+  }
+  function renderTileList() {
+    var host = el('targetsHost');
+    if (!state.tgt.field || !state.tgt.options.length) return;
+    var total = state.tgt.options.length;
+    var shown = shownOptions();
+    var q = String(state.tgtQuery || '').trim();
+
+    el('tgtSearchClear').hidden = !q;
+    el('tgtShownAll').hidden = !q;
+    el('tgtShownNone').hidden = !q;
+    el('tgtCount').textContent = q
+      ? (shown.length ? 'Showing ' + shown.length + ' of ' + total + ' tables' : 'No match')
+      : (total + ' table' + (total === 1 ? '' : 's'));
+
+    if (!shown.length) {
+      host.innerHTML = '<div class="empty">No target table matches <b>' + esc(q) + '</b>.<br>' +
+        'Try part of a name, for example <span class="kbd">APRP</span>.</div>';
+      return;
+    }
+
+    host.innerHTML = shown.map(function (o) {
+      var on = state.targets.has(o.key);
+      var name = o.label ? esc(o.label) : '<span class="none">(no target table)</span>';
+      var meta = o.marked + ' marked of ' + o.total + ' row' + (o.total === 1 ? '' : 's');
+      var tip = o.variants.length > 1 ? 'Written in the CDMS as: ' + o.variants.join(' | ') : '';
+      return '<label class="tgt' + (on ? ' on' : '') + (o.marked ? '' : ' nomark') + '"' +
+        (tip ? ' title="' + esc(tip) + '"' : '') + '>' +
+        '<input type="checkbox" data-key="' + esc(o.key) + '"' + (on ? ' checked' : '') + '>' +
+        '<span class="body"><span class="nm">' + name + '</span>' +
+        '<span class="mt">' + meta + '</span></span></label>';
+    }).join('');
+
+    Array.prototype.forEach.call(host.querySelectorAll('input[type=\"checkbox\"]'), function (box) {
+      box.addEventListener('change', function () {
+        var key = this.getAttribute('data-key');
+        if (this.checked) state.targets.add(key); else state.targets.delete(key);
+        var label = this.parentNode;
+        if (label && label.classList) label.classList.toggle('on', this.checked);
+        renderRows();
+        recompute();
+      });
+    });
+  }
+
+  function renderTargetNote() {
+    var host = el('targetsNote');
+    if (!state.tgt.field || !state.tgt.options.length) { host.innerHTML = ''; return; }
+    var opts = state.tgt.options;
+    var chosen = opts.filter(function (o) { return state.targets.has(o.key); });
+    var leftMarked = opts.filter(function (o) { return !state.targets.has(o.key); })
+      .reduce(function (n, o) { return n + o.marked; }, 0);
+    var emptyChosen = chosen.filter(function (o) { return !o.marked; });
+    var picked = deliveredRows().length;
+
+    if (!chosen.length) {
+      host.innerHTML = '<p class="tgtline">Selected <b>0</b> of <b>' + opts.length + '</b> target table' +
+        (opts.length === 1 ? '' : 's') + ', so the T15 would have no entries.</p>' +
+        '<div class="banner err">No target table is ticked. Tick one below, or use <b>Select all tables</b>.</div>';
+      return;
+    }
+
+    var html = '<p class="tgtline">Selected <b>' + chosen.length + '</b> of <b>' + opts.length + '</b> target table' +
+      (opts.length === 1 ? '' : 's') + ', giving <b>' + picked + '</b> marked row' + (picked === 1 ? '' : 's') +
+      ' and <b>' + state.steps.length + '</b> test step' + (state.steps.length === 1 ? '' : 's') + '.</p>';
+    if (leftMarked) {
+      html += '<div class="banner warn">' + leftMarked + ' marked row' + (leftMarked === 1 ? '' : 's') +
+        ' belong to a target table that is not ticked, so they are left out of this T15.</div>';
+    }
+    if (emptyChosen.length) {
+      html += '<div class="banner warn">Ticked but with nothing marked yet: <b>' +
+        emptyChosen.map(function (o) { return esc(o.label || '(no target table)'); }).join(', ') +
+        '</b>. Tick rows for it in section 4, or untick the table.</div>';
+    }
+    host.innerHTML = html;
+  }
+
   /* ---------- rows table ---------- */
   function renderRows() {
     var showAll = el('showAll').checked;
-    var recs = state.records.filter(function (r) { return showAll || r.included || r.markedFill || r.markedText; });
-    el('rowsCount').textContent = state.records.filter(function (r) { return r.included; }).length +
-      ' of ' + state.records.length + ' rows selected';
+    var showExcluded = el('showExcluded').checked;
+    var recs = state.records.filter(function (r) {
+      if (!showAll && !(r.included || r.markedFill || r.markedText)) return false;
+      if (!showExcluded && !rowInTargets(r)) return false;
+      return true;
+    });
+    var picked = deliveredRows().length;
+    el('rowsCount').textContent = picked + ' of ' + state.records.length + ' rows selected';
 
     if (!recs.length) {
-      el('rowsHost').innerHTML = '<div class="empty">No highlighted rows were found on this sheet.<br>' +
-        'In the CDMS, highlight the changed rows (yellow is the convention) and load the file again, ' +
-        'or tick <b>Show all rows</b> above and select them by hand.</div>';
+      var markedAny = state.records.some(function (r) { return r.included || r.markedFill || r.markedText; });
+      var msg;
+      if (state.tgt.field && !state.targets.size) {
+        msg = 'No target table is ticked, so there are no rows to show.<br>Tick a table in section 3.';
+      } else if (markedAny) {
+        msg = 'No rows to show: the marked ones belong to target tables you have not ticked.<br>' +
+          'Tick another table in section 3, or tick <b>Also show rows from unticked tables</b> above.';
+      } else {
+        msg = 'No highlighted rows were found on this sheet.<br>' +
+          'In the CDMS, highlight the changed rows (yellow is the convention) and load the file again, ' +
+          'or tick <b>Show all rows</b> above and select them by hand.';
+      }
+      el('rowsHost').innerHTML = '<div class="empty">' + msg + '</div>';
       return;
     }
 
@@ -1855,13 +2176,16 @@
       '</tr></thead><tbody>';
     recs.forEach(function (r) {
       var idx = state.records.indexOf(r);
+      var inSel = rowInTargets(r);
       var fill = r.fill ? '<span class="swatch" style="background:' + esc(r.fill) + '"></span>' + esc(r.fill) : '&mdash;';
-      html += '<tr class="' + (r.included ? 'on' : '') + '">' +
-        '<td><input type="checkbox" data-i="' + idx + '" class="rowbox"' + (r.included ? ' checked' : '') + '></td>' +
+      var flag = inSel ? '' : ' <span class="pill off">table not ticked</span>';
+      html += '<tr class="' + (r.included && inSel ? 'on' : '') + '">' +
+        '<td><input type="checkbox" data-i="' + idx + '" class="rowbox"' + (r.included ? ' checked' : '') +
+        (inSel ? '' : ' disabled title="This row\u2019s target table is not ticked"') + '></td>' +
         '<td class="num">' + r.itemNo + '</td>' +
         '<td>' + esc(r.row.sourceTable || '—') + '</td>' +
         '<td>' + esc(r.row.sourceColumn || '—') + '</td>' +
-        '<td>' + esc(r.row.targetTable || '—') + '</td>' +
+        '<td>' + esc(r.row.targetTable || '—') + flag + '</td>' +
         '<td>' + esc(r.row.targetColumn || '—') + '</td>' +
         '<td>' + esc(r.row.mapping || '') + '</td>' +
         '<td>' + fill + '</td>' +
@@ -1882,17 +2206,25 @@
 
   /* ---------- steps ---------- */
   function recompute() {
-    state.steps = core.deriveSteps(state.records, { groupBy: el('groupBy').value });
+    var opts = { groupBy: el('groupBy').value };
+    if (state.tgt.field && state.tgt.options.length) {
+      opts.targets = Array.from(state.targets);
+      opts.targetField = state.tgt.field;
+    }
+    state.steps = core.deriveSteps(state.records, opts);
     renderSteps();
     updateSummary();
+    renderTargetNote();
     el('generate').disabled = !state.steps.length;
   }
 
   function renderSteps() {
     var steps = state.steps;
     if (!steps.length) {
-      el('stepsHost').innerHTML = '<div class="empty">No marked rows, so no test steps yet.<br>' +
-        'Highlight the changed rows in the CDMS, or tick rows in section 3.</div>';
+      var why = (state.tgt.field && state.tgt.options.length && !state.targets.size)
+        ? 'No target table is ticked, so nothing is generated. Tick a table in section 3.'
+        : 'No marked rows in the ticked target tables.<br>Highlight the changed rows in the CDMS, or tick rows in section 4.';
+      el('stepsHost').innerHTML = '<div class="empty">No test steps yet.<br>' + why + '</div>';
       return;
     }
     var html = '<div class="tablewrap"><table class="steps"><thead><tr>' +
@@ -1916,13 +2248,18 @@
   }
 
   function updateSummary() {
-    var marked = state.records.filter(function (r) { return r.included; }).length;
     if (!state.records.length) {
       el('summary').textContent = 'Load a CDMS to begin.';
       return;
     }
-    el('summary').innerHTML = '<b>' + marked + '</b> marked row' + (marked === 1 ? '' : 's') +
-      ' &rarr; <b>' + state.steps.length + '</b> test step' + (state.steps.length === 1 ? '' : 's') +
+    var picked = deliveredRows().length;
+    var bits = [];
+    if (state.tgt.field && state.tgt.options.length) {
+      bits.push('<b>' + state.targets.size + '</b> of <b>' + state.tgt.options.length + '</b> target tables');
+    }
+    bits.push('<b>' + picked + '</b> marked row' + (picked === 1 ? '' : 's'));
+    bits.push('<b>' + state.steps.length + '</b> test step' + (state.steps.length === 1 ? '' : 's'));
+    el('summary').innerHTML = bits.join(' &rarr; ') +
       (val('study') ? ' &middot; ' + esc(val('study')) : '');
   }
 
@@ -1985,7 +2322,7 @@
   });
 
   el('btnAll').addEventListener('click', function () {
-    state.records.forEach(function (r) { r.included = true; });
+    state.records.forEach(function (r) { if (rowInTargets(r)) r.included = true; });
     renderRows(); recompute();
   });
   el('btnNone').addEventListener('click', function () {
@@ -1993,6 +2330,53 @@
     renderRows(); recompute();
   });
   el('showAll').addEventListener('change', renderRows);
+  el('showExcluded').addEventListener('change', renderRows);
+
+  /* target table toolbar */
+  function setTargets(keys) {
+    state.targets = new Set(keys);
+    renderTargets();
+    renderRows();
+    recompute();
+  }
+  el('tgtAll').addEventListener('click', function () {
+    setTargets(state.tgt.options.map(function (o) { return o.key; }));
+  });
+  el('tgtNone').addEventListener('click', function () { setTargets([]); });
+  el('tgtMarked').addEventListener('click', function () {
+    setTargets(state.tgt.options.filter(function (o) { return o.marked; })
+      .map(function (o) { return o.key; }));
+  });
+
+  /* search box: filters the tiles only, never the selection */
+  function setQuery(v) {
+    state.tgtQuery = v;
+    el('tgtSearch').value = v;
+    renderTileList();
+  }
+  el('tgtSearch').addEventListener('input', function () {
+    state.tgtQuery = this.value;
+    renderTileList();
+  });
+  el('tgtSearch').addEventListener('search', function () {
+    state.tgtQuery = this.value;
+    renderTileList();
+  });
+  el('tgtSearch').addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); setQuery(''); }
+  });
+  el('tgtSearchClear').addEventListener('click', function () {
+    setQuery('');
+    el('tgtSearch').focus();
+  });
+  el('tgtShownAll').addEventListener('click', function () {
+    shownOptions().forEach(function (o) { state.targets.add(o.key); });
+    renderTargets(); renderRows(); recompute();
+  });
+  el('tgtShownNone').addEventListener('click', function () {
+    shownOptions().forEach(function (o) { state.targets.delete(o.key); });
+    renderTargets(); renderRows(); recompute();
+  });
   el('groupBy').addEventListener('change', function () { saveTemplate(); recompute(); });
   el('specVersion').addEventListener('input', function () {
     versionManual = false;
