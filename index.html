@@ -146,6 +146,26 @@
   .tgt .mt{font-size:11.8px;color:var(--ink-2)}
   .tgt.nomark{border-style:dashed}
 
+  /* ---------- colour picker ---------- */
+  .colours{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+  .colour{
+    display:flex;align-items:center;gap:10px;border:1px solid var(--rule);border-radius:var(--radius-sm);
+    background:var(--panel-2);padding:9px 12px;cursor:pointer;transition:border-color .15s,background .15s
+  }
+  .colour:hover{border-color:var(--accent)}
+  .colour.on{border-color:var(--accent);background:var(--accent-soft)}
+  .colour:focus-within{box-shadow:0 0 0 3px var(--ring)}
+  .colour input{width:16px;height:16px;accent-color:var(--accent);flex:none;cursor:pointer}
+  .colour .csw{width:20px;height:20px;border-radius:5px;border:1px solid rgba(16,28,58,.35);flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+  .colour .body{min-width:0;display:flex;flex-direction:column;gap:1px}
+  .colour .cname{font-size:13.5px;font-weight:600;color:var(--ink)}
+  .colour .cmeta{font-size:11.8px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .struckbox{margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}
+  .struckbox .checkline{margin:0}
+  .struckbox .fhint{display:block;margin:6px 0 0 25px;font-size:12px;color:var(--ink-2)}
+  .struckbox .fhint b{color:var(--accent);font-weight:600}
+  tr.struckrow td{opacity:.62}
+
   /* ---------- target table search ---------- */
   .tgtsearch{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
   .srch{position:relative;display:flex;align-items:center;flex:1 1 280px;max-width:440px;min-width:0}
@@ -321,8 +341,24 @@
     <div id="metaNote"></div>
   </section>
 
+  <section class="card" id="coloursCard" hidden>
+    <h2><span class="num">3</span> Rows to test <small>the colours that mark a changed row</small></h2>
+    <p class="lede" id="coloursLede">These are the fill colours found on this sheet. A row counts as marked when it carries one of the ticked colours, or when a Mark / Include / T15 column says so.</p>
+    <div class="toolbar" id="colourTools">
+      <button class="btn" id="colourAll" type="button">Select all colours</button>
+      <button class="btn" id="colourNone" type="button">Clear all</button>
+      <button class="btn" id="colourUsual" type="button">Yellow and green only</button>
+    </div>
+    <div class="colours" id="coloursHost"></div>
+    <div id="coloursNote"></div>
+    <div class="struckbox">
+      <label class="checkline" for="includeStruck"><input type="checkbox" id="includeStruck"> Generate T14/T15 entries for struck-out rows as well <span class="pill" id="struckPill" title="A row counts as struck out when most of its text cells are struck through"></span></label>
+      <span class="fhint" id="struckHint">Struck-through rows are left out unless this is ticked.</span>
+    </div>
+  </section>
+
   <section class="card" id="targetsCard" hidden>
-    <h2><span class="num">3</span> Target tables <small>choose which tables this T15 covers</small></h2>
+    <h2><span class="num">4</span> Target tables <small>choose which tables this T15 covers</small></h2>
     <p class="lede" id="targetsLede">Every target table in the CDMS is listed. Only rows whose table is ticked can appear in the T15.</p>
     <div class="toolbar" id="tgtTools">
       <button class="btn" id="tgtAll" type="button">Select all tables</button>
@@ -348,8 +384,8 @@
   </section>
 
   <section class="card" id="rowsCard" hidden>
-    <h2><span class="num">4</span> Marked rows <small id="rowsCount"></small></h2>
-    <p class="lede">These rows become the test steps. Untick anything that should not be in this T15; rows from an unticked target table stay out of it.</p>
+    <h2><span class="num">5</span> Marked rows <small id="rowsCount"></small></h2>
+    <p class="lede">These rows become the test steps. Untick anything that should not be in this T15; rows from an unticked target table, and struck-out rows, stay out of it unless section 3 says otherwise.</p>
     <div class="toolbar">
       <button class="btn" id="btnAll" type="button">Select all</button>
       <button class="btn" id="btnNone" type="button">Clear all</button>
@@ -360,7 +396,7 @@
   </section>
 
   <section class="card" id="stepsCard" hidden>
-    <h2><span class="num">5</span> Test steps <small>this is the Test Script table in the T15</small></h2>
+    <h2><span class="num">6</span> Test steps <small>this is the Test Script table in the T15</small></h2>
     <div id="stepsHost"></div>
   </section>
 
@@ -664,7 +700,7 @@
   }
 
   function parseStyles(xml, theme) {
-    const res = { fillColors: [], xfFill: [] };
+    const res = { fillColors: [], xfFill: [], fontStrike: [], xfFont: [] };
     if (!xml) return res;
     const fills = (/<fills[^>]*>([\s\S]*?)<\/fills>/.exec(xml) || [, ''])[1];
     const fillRe = /<fill\b[^>]*>([\s\S]*?)<\/fill>/g;
@@ -688,6 +724,22 @@
     while ((m = xfRe.exec(xfs))) {
       const id = parseInt(attr(m[1], 'fillId') || '0', 10);
       res.xfFill.push(isNaN(id) ? 0 : id);
+      const fid = parseInt(attr(m[1], 'fontId') || '0', 10);
+      res.xfFont.push(isNaN(fid) ? 0 : fid);
+    }
+    /* a struck-through row is written as a strike on its font, which the cell
+       style points at */
+    const fonts = (/<fonts[^>]*>([\s\S]*?)<\/fonts>/.exec(xml) || [, ''])[1];
+    const fontRe = /<font\b([^>]*?)(?:\/>|>([\s\S]*?)<\/font>)/g;
+    while ((m = fontRe.exec(fonts))) {
+      const inner = m[2] || '';
+      const st = /<strike\b([^>]*?)\/?>/.exec(inner);
+      let strike = false;
+      if (st) {
+        const v = attr(st[1], 'val');
+        strike = !(v === '0' || v === 'false');
+      }
+      res.fontStrike.push(strike);
     }
     return res;
   }
@@ -812,6 +864,14 @@
     return c || null;
   }
 
+  function cellStrike(wb, cell) {
+    if (!cell) return false;
+    const map = wb.styles.xfFont;
+    if (!map || !map.length || !wb.styles.fontStrike.length) return false;
+    const fontId = map[cell.style] || 0;
+    return !!wb.styles.fontStrike[fontId];
+  }
+
   /* ------------------------------------------------------------------ */
   /* header + column detection                                           */
   /* ------------------------------------------------------------------ */
@@ -884,6 +944,15 @@
       const uniq = Array.from(new Set(fills));
       uniq.forEach(f => dataFill.set(f, (dataFill.get(f) || 0) + 1));
 
+      /* a row is struck out when most of the cells that carry text are struck
+         through, which is what selecting a row and hitting the strike button does */
+      let textCells = 0, struckCells = 0;
+      for (const c of row.cells) {
+        if (!cellText(wb, c)) continue;
+        textCells++;
+        if (cellStrike(wb, c)) struckCells++;
+      }
+
       const itemRaw = get('item');
       const itemNum = /^\d+$/.test(itemRaw) ? parseInt(itemRaw, 10) : null;
       records.push({
@@ -891,6 +960,9 @@
         itemNo: itemNum != null ? itemNum : row.num,
         fill: uniq[0] || null,
         fills: uniq,
+        struck: textCells > 0 && struckCells * 2 >= textCells,
+        struckCells: struckCells,
+        textCells: textCells,
         row: raw,
         markedText: isTruthy(raw.marker),
         markedFill: false,
@@ -910,13 +982,19 @@
     return s === 'y' || s === 'yes' || s === 'x' || s === 'true' || s === '1' || s === 't15' || s === 't14' || s === 'marked' || s === 'include' || s === 'included';
   }
 
-  function isHighlight(hex, count, threshold) {
-    const rgb = hex.replace('#', '');
+  /* the two highlight colours CDMS practice uses for a changed row */
+  function isUsualColour(hex) {
+    const rgb = String(hex || '').replace('#', '');
+    if (rgb.length !== 6) return false;
     const r = parseInt(rgb.slice(0, 2), 16), g = parseInt(rgb.slice(2, 4), 16), b = parseInt(rgb.slice(4, 6), 16);
     const yellow = r > 200 && g > 170 && b < 140;
     const green = r > 150 && g > 200 && b > 150 && b < 200;
+    return yellow || green;
+  }
+
+  function isHighlight(hex, count, threshold) {
     const rare = count > 0 && count <= threshold;
-    return yellow || green || rare;
+    return isUsualColour(hex) || rare;
   }
 
   function analyse(wb, sheetName) {
@@ -1056,6 +1134,62 @@
     return { field: field, options: list };
   }
 
+  /* a plain word for a fill colour, so the picker can say "Light yellow #FFF2CC" */
+  function colourName(hex) {
+    const h = String(hex || '').replace('#', '');
+    if (h.length !== 6) return '';
+    const r = parseInt(h.slice(0, 2), 16) / 255;
+    const g = parseInt(h.slice(2, 4), 16) / 255;
+    const b = parseInt(h.slice(4, 6), 16) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+    const v = max, s = max ? d / max : 0;
+    let hue = 0;
+    if (d) {
+      if (max === r) hue = ((g - b) / d + 6) % 6;
+      else if (max === g) hue = (b - r) / d + 2;
+      else hue = (r - g) / d + 4;
+      hue *= 60;
+    }
+    if (v <= 0.12) return 'Black';
+    if (s <= 0.10) {
+      if (v >= 0.95) return 'White';
+      if (v >= 0.75) return 'Light grey';
+      if (v >= 0.45) return 'Grey';
+      return 'Dark grey';
+    }
+    const bands = [[15, 'Red'], [40, 'Orange'], [65, 'Yellow'], [95, 'Lime'], [160, 'Green'],
+      [200, 'Teal'], [250, 'Blue'], [290, 'Purple'], [330, 'Magenta'], [345, 'Pink'], [361, 'Red']];
+    let base = 'Red';
+    for (let i = 0; i < bands.length; i++) {
+      if (hue < bands[i][0]) { base = bands[i][1]; break; }
+    }
+    if (v < 0.45) return 'Dark ' + base.toLowerCase();
+    if (s < 0.35 && v > 0.85) return 'Light ' + base.toLowerCase();
+    return base;
+  }
+
+  /* every fill colour on the sheet, with how many rows carry it and whether the
+     built-in rules would treat it as a highlight */
+  function colourOptions(records) {
+    const counts = new Map();
+    records.forEach(function (r) {
+      r.fills.forEach(function (f) { counts.set(f, (counts.get(f) || 0) + 1); });
+    });
+    const threshold = Math.max(1, Math.round(records.length * 0.2));
+    const options = [];
+    counts.forEach(function (n, hex) {
+      options.push({
+        hex: hex,
+        name: colourName(hex),
+        total: n,
+        struck: records.filter(function (r) { return r.fills.indexOf(hex) !== -1 && r.struck; }).length,
+        isDefault: isHighlight(hex, n, threshold)
+      });
+    });
+    options.sort(function (a, b) { return b.total - a.total || a.hex.localeCompare(b.hex); });
+    return { options: options, threshold: threshold };
+  }
+
   function deriveSteps(records, opts) {
     opts = opts || {};
     const groupMode = opts.groupBy || 'domain';
@@ -1069,8 +1203,12 @@
       const raw = field ? rec.row[field] : '';
       return tableKeys(raw).some(function (k) { return chosen.has(k); });
     };
-    const included = records.filter(function (r) { return r.included && inChosen(r); })
-      .sort((a, b) => a.itemNo - b.itemNo);
+    const keepStruck = opts.includeStruck !== false;
+    const included = records.filter(function (r) {
+      if (!r.included) return false;
+      if (!keepStruck && r.struck) return false;
+      return inChosen(r);
+    }).sort((a, b) => a.itemNo - b.itemNo);
     const groups = [];
     const index = new Map();
 
@@ -1826,6 +1964,10 @@
     tableKeys: tableKeys,
     targetField: targetField,
     targetOptions: targetOptions,
+    colourOptions: colourOptions,
+    colourName: colourName,
+    isUsualColour: isUsualColour,
+    cellStrike: cellStrike,
     joinAnd: joinAnd,
     parseFileName: parseFileName,
     bumpVersion: bumpVersion,
@@ -1853,6 +1995,7 @@
   var state = {
     fileName: '', wb: null, sheetName: '', analysis: null, records: [], steps: [],
     tgt: { field: null, options: [] }, targets: new Set(), tgtQuery: '',
+    colours: { options: [] }, picked: new Set(), includeStruck: false,
     auto: { study: '', version: '', date: '' }, loading: false
   };
 
@@ -1933,6 +2076,7 @@
 
       renderFileInfo();
       el('detailsCard').hidden = false;
+      el('coloursCard').hidden = false;
       el('targetsCard').hidden = false;
       el('rowsCard').hidden = false;
       el('stepsCard').hidden = false;
@@ -1951,6 +2095,7 @@
       banner(el('loadError'), 'err', 'Could not read the workbook: ' + esc(err.message || err));
       setStatus('Could not read the workbook');
       el('detailsCard').hidden = true;
+      el('coloursCard').hidden = true;
       el('targetsCard').hidden = true;
       el('rowsCard').hidden = true;
       el('stepsCard').hidden = true;
@@ -1988,10 +2133,14 @@
       state.tgt = { field: null, options: [] };
       state.targets = new Set();
       state.tgtQuery = '';
+      state.colours = { options: [] };
+      state.picked = new Set();
       el('rowsHost').innerHTML = '';
       el('stepsHost').innerHTML = '';
       el('targetsHost').innerHTML = '';
       el('targetsNote').innerHTML = '';
+      el('coloursHost').innerHTML = '';
+      el('coloursNote').innerHTML = '';
       el('tgtSearchRow').hidden = true;
       el('generate').disabled = true;
       setStatus('No mapping header found on ' + sheetName);
@@ -2002,15 +2151,121 @@
     state.records = res.records;
     banner(el('loadError'), '', '');
     el('fileStats').textContent = res.records.length + ' data rows · header row ' + res.header.row.num;
-    /* every table starts ticked, so the default output is unchanged */
+    /* the colours the built-in rules would call a highlight start ticked, so the
+       default output is the same as before the picker existed */
+    state.colours = core.colourOptions(res.records);
+    state.picked = new Set(state.colours.options.filter(function (o) { return o.isDefault; })
+      .map(function (o) { return o.hex; }));
+    state.includeStruck = false;
+    el('includeStruck').checked = false;
+    applyMarks();
+
     state.tgt = core.targetOptions(res.records);
     state.targets = new Set(state.tgt.options.map(function (o) { return o.key; }));
     state.tgtQuery = '';
     el('tgtSearch').value = '';
+    renderColours();
     renderTargets();
     renderRows();
     recompute();
     setStatus(state.fileName + ' · ' + sheetName);
+  }
+
+  /* ---------- colours and struck-out rows ---------- */
+  function pl(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+
+  /* the ticked colours and the strike setting decide which rows carry a mark */
+  function applyMarks() {
+    state.records.forEach(function (r) {
+      r.markedFill = r.fills.some(function (f) { return state.picked.has(f); });
+      var marked = r.markedFill || r.markedText;
+      r.included = marked && (state.includeStruck || !r.struck);
+    });
+  }
+
+  function renderColours() {
+    var host = el('coloursHost'), lede = el('coloursLede');
+    var opts = state.colours.options;
+
+    if (!opts.length) {
+      var textMarked = state.records.filter(function (r) { return r.markedText; }).length;
+      el('colourTools').hidden = true;
+      lede.textContent = 'No cell fill was found on this sheet, so no row is marked by colour.';
+      host.innerHTML = '<div class="empty">No highlighted cells here.<br>' +
+        (textMarked
+          ? 'The Mark / Include / T15 column is marking ' + pl(textMarked, 'row', 'rows') + ' instead.'
+          : 'Highlight the changed rows in the CDMS and load it again, or tick <b>Show all rows</b> in section 5 ' +
+            'and pick the rows by hand.') + '</div>';
+      el('coloursNote').innerHTML = '';
+      el('struckPill').textContent = '';
+      el('includeStruck').disabled = true;
+      el('struckHint').textContent = 'No struck-through rows were found on this sheet.';
+      return;
+    }
+
+    el('colourTools').hidden = false;
+    lede.innerHTML = 'These are the fill colours found on this sheet. A row counts as marked when it carries one of the ' +
+      'ticked colours, or when a Mark / Include / T15 column says so.';
+
+    host.innerHTML = opts.map(function (o) {
+      var on = state.picked.has(o.hex);
+      return '<label class="colour' + (on ? ' on' : '') + '">' +
+        '<input type="checkbox" data-hex="' + esc(o.hex) + '"' + (on ? ' checked' : '') + '>' +
+        '<span class="csw" style="background:' + esc(o.hex) + '"></span>' +
+        '<span class="body"><span class="cname">' + esc(o.name || o.hex) + '</span>' +
+        '<span class="cmeta">' + esc(o.hex) + ' &middot; ' + pl(o.total, 'row', 'rows') + '</span></span></label>';
+    }).join('');
+
+    Array.prototype.forEach.call(host.querySelectorAll('input[type=\"checkbox\"]'), function (box) {
+      box.addEventListener('change', function () {
+        var hex = this.getAttribute('data-hex');
+        if (this.checked) state.picked.add(hex); else state.picked.delete(hex);
+        var label = this.parentNode;
+        if (label && label.classList) label.classList.toggle('on', this.checked);
+        applyMarks();
+        renderColourNote();
+        renderRows();
+        recompute();
+      });
+    });
+    renderColourNote();
+  }
+
+  function renderColourNote() {
+    var host = el('coloursNote');
+    if (!state.colours.options.length) { host.innerHTML = ''; return; }
+    var total = state.colours.options.length;
+    var picked = state.colours.options.filter(function (o) { return state.picked.has(o.hex); });
+    var marked = state.records.filter(function (r) { return r.markedFill || r.markedText; }).length;
+    var struckAll = state.records.filter(function (r) { return r.struck; }).length;
+    var struckMarked = state.records.filter(function (r) { return r.struck && (r.markedFill || r.markedText); }).length;
+    var textOnly = state.records.filter(function (r) { return r.markedText; }).length;
+
+    var html = '<p class="tgtline">' + picked.length + ' of <b>' + total + '</b> colours ticked, marking <b>' +
+      marked + '</b> ' + (marked === 1 ? 'row' : 'rows') +
+      (textOnly ? ' (including ' + textOnly + ' from the marker column)' : '') + '.</p>';
+
+    if (struckAll) {
+      html += state.includeStruck
+        ? '<div class="banner ok">' + pl(struckMarked, 'struck-out row is', 'struck-out rows are') +
+          ' included, so ' + (struckMarked === 1 ? 'it gets' : 'they get') + ' T14/T15 entries.</div>'
+        : '<div class="banner warn">' + pl(struckMarked, 'struck-out row is', 'struck-out rows are') +
+          ' marked but left out. Tick the box below to generate entries for ' + (struckMarked === 1 ? 'it' : 'them') + ' too.</div>';
+    }
+    if (!picked.length && !textOnly) {
+      html += '<div class="banner err">No colour is ticked and no marker column was found, so the T15 would have no entries.</div>';
+    }
+    host.innerHTML = html;
+
+    el('struckPill').textContent = struckAll
+      ? pl(struckAll, 'struck-out row', 'struck-out rows') + ' in this sheet'
+      : 'none in this sheet';
+    el('includeStruck').disabled = !struckAll;
+    el('struckHint').innerHTML = !struckAll
+      ? 'No struck-through rows were found on this sheet.'
+      : (state.includeStruck
+        ? 'Struck-out rows now get T14/T15 entries. Untick to leave them out.'
+        : 'Struck-through rows are left out unless this is ticked.');
   }
 
   /* ---------- target tables ---------- */
@@ -2136,7 +2391,7 @@
     if (emptyChosen.length) {
       html += '<div class="banner warn">Ticked but with nothing marked yet: <b>' +
         emptyChosen.map(function (o) { return esc(o.label || '(no target table)'); }).join(', ') +
-        '</b>. Tick rows for it in section 4, or untick the table.</div>';
+        '</b>. Tick rows for it in section 5, or untick the table.</div>';
     }
     host.innerHTML = html;
   }
@@ -2157,14 +2412,13 @@
       var markedAny = state.records.some(function (r) { return r.included || r.markedFill || r.markedText; });
       var msg;
       if (state.tgt.field && !state.targets.size) {
-        msg = 'No target table is ticked, so there are no rows to show.<br>Tick a table in section 3.';
+        msg = 'No target table is ticked, so there are no rows to show.<br>Tick a table in section 4.';
       } else if (markedAny) {
         msg = 'No rows to show: the marked ones belong to target tables you have not ticked.<br>' +
-          'Tick another table in section 3, or tick <b>Also show rows from unticked tables</b> above.';
+          'Tick another table in section 4, or tick <b>Also show rows from unticked tables</b> above.';
       } else {
-        msg = 'No highlighted rows were found on this sheet.<br>' +
-          'In the CDMS, highlight the changed rows (yellow is the convention) and load the file again, ' +
-          'or tick <b>Show all rows</b> above and select them by hand.';
+        msg = 'No marked rows were found on this sheet.<br>' +
+          'Tick the colour the changed rows use in section 3, or tick <b>Show all rows</b> above and select them by hand.';
       }
       el('rowsHost').innerHTML = '<div class="empty">' + msg + '</div>';
       return;
@@ -2177,18 +2431,24 @@
     recs.forEach(function (r) {
       var idx = state.records.indexOf(r);
       var inSel = rowInTargets(r);
+      var struckOut = r.struck && !state.includeStruck;
+      var blocked = !inSel || struckOut;
       var fill = r.fill ? '<span class="swatch" style="background:' + esc(r.fill) + '"></span>' + esc(r.fill) : '&mdash;';
       var flag = inSel ? '' : ' <span class="pill off">table not ticked</span>';
-      html += '<tr class="' + (r.included && inSel ? 'on' : '') + '">' +
+      var strikeFlag = r.struck ? ' <span class="pill off">struck out</span>' : '';
+      var why = !inSel
+        ? 'This row\u2019s target table is not ticked'
+        : (struckOut ? 'Struck-out row: tick Include struck-out rows in section 3' : '');
+      html += '<tr class="' + (r.included && inSel ? 'on' : '') + (struckOut ? ' struckrow' : '') + '">' +
         '<td><input type="checkbox" data-i="' + idx + '" class="rowbox"' + (r.included ? ' checked' : '') +
-        (inSel ? '' : ' disabled title="This row\u2019s target table is not ticked"') + '></td>' +
+        (blocked && why ? ' disabled title="' + why + '"' : '') + '></td>' +
         '<td class="num">' + r.itemNo + '</td>' +
         '<td>' + esc(r.row.sourceTable || '—') + '</td>' +
         '<td>' + esc(r.row.sourceColumn || '—') + '</td>' +
         '<td>' + esc(r.row.targetTable || '—') + flag + '</td>' +
         '<td>' + esc(r.row.targetColumn || '—') + '</td>' +
         '<td>' + esc(r.row.mapping || '') + '</td>' +
-        '<td>' + fill + '</td>' +
+        '<td>' + fill + strikeFlag + '</td>' +
         '</tr>';
     });
     html += '</tbody></table></div>';
@@ -2206,7 +2466,7 @@
 
   /* ---------- steps ---------- */
   function recompute() {
-    var opts = { groupBy: el('groupBy').value };
+    var opts = { groupBy: el('groupBy').value, includeStruck: state.includeStruck };
     if (state.tgt.field && state.tgt.options.length) {
       opts.targets = Array.from(state.targets);
       opts.targetField = state.tgt.field;
@@ -2222,8 +2482,8 @@
     var steps = state.steps;
     if (!steps.length) {
       var why = (state.tgt.field && state.tgt.options.length && !state.targets.size)
-        ? 'No target table is ticked, so nothing is generated. Tick a table in section 3.'
-        : 'No marked rows in the ticked target tables.<br>Highlight the changed rows in the CDMS, or tick rows in section 4.';
+        ? 'No target table is ticked, so nothing is generated. Tick a table in section 4.'
+        : 'No marked rows in the ticked target tables.<br>Tick the colour the changed rows use in section 3, or tick rows in section 5.';
       el('stepsHost').innerHTML = '<div class="empty">No test steps yet.<br>' + why + '</div>';
       return;
     }
@@ -2322,8 +2582,34 @@
   });
 
   el('btnAll').addEventListener('click', function () {
-    state.records.forEach(function (r) { if (rowInTargets(r)) r.included = true; });
+    state.records.forEach(function (r) {
+      if (rowInTargets(r) && (state.includeStruck || !r.struck)) r.included = true;
+    });
     renderRows(); recompute();
+  });
+
+  /* colour toolbar and the struck-out switch */
+  function setColours(hexes) {
+    state.picked = new Set(hexes);
+    applyMarks();
+    renderColours();
+    renderRows();
+    recompute();
+  }
+  el('colourAll').addEventListener('click', function () {
+    setColours(state.colours.options.map(function (o) { return o.hex; }));
+  });
+  el('colourNone').addEventListener('click', function () { setColours([]); });
+  el('colourUsual').addEventListener('click', function () {
+    setColours(state.colours.options.filter(function (o) { return core.isUsualColour(o.hex); })
+      .map(function (o) { return o.hex; }));
+  });
+  el('includeStruck').addEventListener('change', function () {
+    state.includeStruck = this.checked;
+    applyMarks();
+    renderColourNote();
+    renderRows();
+    recompute();
   });
   el('btnNone').addEventListener('click', function () {
     state.records.forEach(function (r) { r.included = false; });
